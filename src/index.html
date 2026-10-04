@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Võng Du Offline: Chư Thiên Giáng Lâm</title>
+<style>
+:root{--bg:#0b0e1a;--panel:#141a30;--panel2:#1b2340;--gold:#f5c542;--red:#ff4d5e;--green:#3ddc84;--blue:#4da3ff;--purple:#c26bff;--orange:#ff9a3d;--text:#e8ecff;--muted:#9aa3c7}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100dvh;overflow:hidden;-webkit-text-size-adjust:100%}
+body{background:radial-gradient(1200px 600px at 50% -10%,#232c5c,var(--bg));color:var(--text);font-family:"Segoe UI",Roboto,Arial,sans-serif;min-height:100dvh;max-height:100dvh;overflow:hidden;touch-action:none}
+header{background:linear-gradient(90deg,#1a2140,#2a1a4a);border-bottom:2px solid var(--gold);padding:4px 8px;position:relative;top:auto;z-index:10;display:flex;align-items:center;gap:8px;flex:0 0 auto}
+header h1{font-size:clamp(10px,2vh,14px);color:var(--gold);letter-spacing:.5px;white-space:nowrap}
+header p{font-size:clamp(8px,1.6vh,10px);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app{height:100dvh;max-height:100dvh;display:flex;flex-direction:column;margin:0 auto;padding:0;max-width:none;overflow:hidden}
+.screen{display:none;flex:1 1 auto;min-height:0;flex-direction:column;overflow:hidden}.screen.active{display:flex}
+.panel{background:var(--panel);border:1px solid #2c3763;border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.panel h2{color:var(--gold);margin-bottom:8px;font-size:15px}
+.panel h3{color:var(--blue);margin:8px 0 6px;font-size:13px}
+button{cursor:pointer;border:none;border-radius:8px;padding:10px 16px;font-weight:700;background:linear-gradient(180deg,#3a4a8f,#2a3568);color:#fff;transition:.15s;font-size:14px}
+button:hover{filter:brightness(1.2)}button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:linear-gradient(180deg,#f5c542,#c98a12);color:#201500}
+button.danger{background:linear-gradient(180deg,#ff4d5e,#a31226)}
+button.small{padding:6px 10px;font-size:12px}
+input,select{background:#0d1226;border:1px solid #37427a;color:#fff;border-radius:8px;padding:10px;width:100%;margin:6px 0;font-size:14px}
+.grid{display:grid;gap:10px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+
+/* ===== WIZARD KHỞI ĐẦU - CLEAN MOBILE/PC LANDSCAPE ===== */
+#rotateHint{display:none;background:#3a2f10;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 10px;font-size:12px;text-align:center;margin-bottom:8px}
+@media(max-width:700px) and (orientation:portrait){#rotateHint{display:block}}
+.wiz{max-width:min(980px,96vw);margin:0 auto;padding:clamp(2px,.8vh,6px) clamp(4px,1.2vw,8px);display:flex;flex-direction:column;gap:clamp(3px,.8vh,6px);flex:1 1 auto;min-height:0;overflow:hidden}
+.wiz-bar{display:flex;gap:8px;margin-bottom:10px}
+.wiz-bar .wstep{flex:1;text-align:center;font-size:12px;font-weight:800;padding:6px 4px;border-radius:12px;background:#0d1226;border:1px solid #37427a;color:var(--muted)}
+.wiz-bar .wstep.on{background:var(--gold);color:#201500;border-color:var(--gold)}
+.wiz-bar .wstep.done{background:#1d2f24;color:var(--green);border-color:var(--green)}
+.cstep{display:none;flex:1 1 auto;min-height:0;flex-direction:column;gap:clamp(4px,1vh,8px);overflow:hidden}.cstep.on{display:flex}
+.char-grid{display:grid;grid-template-columns:1fr;gap:clamp(4px,1vh,8px);flex:1 1 auto;min-height:0;overflow:hidden}
+@media (orientation:landscape){.char-grid{grid-template-columns:min(34vw,320px) 1fr}}
+.stage{position:relative;background:radial-gradient(420px 220px at 50% 20%,#2a355f,#0d1226);border:1px solid #2c3763;border-radius:10px;padding:10px;text-align:center}
+.stage-art{height:140px;display:flex;align-items:center;justify-content:center}
+.stage-art svg{width:120px;height:136px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.6));animation:float 2.6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.stage-name{font-size:16px;color:var(--gold);font-weight:800}
+.stage-role{font-size:11px;color:var(--muted)}
+.stat-row{display:grid;grid-template-columns:48px 1fr 26px;gap:6px;font-size:11px;align-items:center;margin:3px 0}
+.stat-row .bar{height:6px;background:#0a0d1d;border-radius:4px;overflow:hidden}
+.stat-row .bar>div{height:100%;border-radius:4px}
+.lore{font-size:11px;color:#c9d1f5;background:#0d1226;border:1px solid #2c3763;border-radius:8px;padding:6px;margin-top:6px;text-align:left;line-height:1.5}
+.skill-mini{display:flex;gap:6px;margin-top:6px}
+.skill-mini div{flex:1;background:#0d1226;border:1px solid #37427a;border-radius:8px;padding:4px;font-size:10px}
+.skill-mini b{color:var(--gold);display:block}
+.class-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.class-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border:1.5px solid #2c3763;border-radius:8px;background:var(--panel2);text-align:center}
+.class-card.sel{border-color:var(--gold);box-shadow:0 0 8px rgba(245,197,66,.4)}
+.class-card .art{width:56px;height:64px;display:flex;align-items:center;justify-content:center}
+.class-card .art svg{width:52px;height:60px}
+.class-card h4{font-size:12px;color:var(--gold)}
+.class-card p{font-size:10px;color:var(--muted)}
+.wiz-nav{display:flex;gap:8px;position:relative;bottom:auto;padding:clamp(2px,.8vh,6px) 0 0;background:none}
+.wiz-nav button{flex:1;min-height:44px;font-size:15px;border-radius:10px}
+.chosen-sum{display:flex;gap:8px;align-items:center;background:#0d1226;border:1px solid var(--gold);border-radius:10px;padding:6px;font-size:12px}
+.chosen-sum .mini{width:38px;height:44px;display:flex;align-items:center;justify-content:center}
+.chosen-sum svg{width:36px;height:42px}
+.talent-grid{display:grid;grid-template-columns:1fr;gap:clamp(4px,1vh,8px);flex:1 1 auto;min-height:0;overflow:hidden}
+@media (orientation:landscape){.talent-grid{grid-template-columns:1fr min(30vw,320px)}}
+.gacha-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+#gachaAnim{font-size:42px}
+.btn-row{display:flex;gap:8px;width:100%}
+.btn-row button{flex:1;min-height:44px;border-radius:10px}
+.rate-table{font-size:11px;border-collapse:collapse;width:100%}
+.rate-table td{border-bottom:1px solid #2c3763;padding:3px}
+
+/* action map: full 16:9, control bar mobile */
+#stageWrap{position:relative;background:#05070f;border:1px solid #2c3763;border-radius:8px;overflow:hidden}
+#gameCanvas{width:100%;height:auto;aspect-ratio:16/9;display:block;background:#0a0d1d}
+.hud{position:absolute;top:4px;left:4px;right:4px;display:flex;gap:4px;pointer-events:none;font-size:10px}
+.hud .hchip{background:rgba(0,0,0,.65);border:1px solid #37427a;border-radius:6px;padding:2px 6px}
+#bossHpWrap{position:absolute;top:28px;left:12%;right:12%;text-align:center;display:none}
+#bossHpName{font-size:11px;color:#ff5ef1;text-shadow:0 1px 3px #000}
+#bossHpBar{height:8px;background:#20060d;border:1px solid #ff5ef1;border-radius:4px;overflow:hidden}
+#bossHpBar>div{height:100%;background:linear-gradient(90deg,#ff5ef1,#ff4d5e)}
+#joy{position:absolute;left:6px;bottom:6px;width:92px;height:92px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.25)}
+#joyKnob{position:absolute;left:28px;top:28px;width:36px;height:36px;border-radius:50%;background:rgba(245,197,66,.9)}
+.act-bar{position:absolute;right:6px;bottom:6px;display:flex;gap:6px;align-items:flex-end}
+.act-bar button{width:48px;height:48px;border-radius:50%;padding:0;font-size:18px}
+.act-bar .ult{width:56px;height:56px;font-size:22px;border:1.5px solid var(--gold)}
+.map-scroll{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px}
+.map-btn{flex:0 0 auto;min-width:120px;font-size:11px;text-align:left}
+.map-btn.sel{outline:1.5px solid var(--gold)}
+
+/* landscape ngang */
+@media (min-width:900px){
+  .char-grid{grid-template-columns:360px 1fr}
+  .class-list{grid-template-columns:1fr;max-height:420px;overflow-y:auto;padding-right:4px}
+  .talent-grid{grid-template-columns:1fr 320px}
+}
+@media (max-height:480px) and (orientation:landscape){
+  .stage-art{height:90px}.stage-art svg{width:84px;height:96px}
+  .class-list{max-height:160px;overflow-y:auto}
+  .wiz-nav button{min-height:38px}
+}
+@media (pointer:coarse){
+  #joy{display:block}
+}
+
+/* talent */
+.talent-pool{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:170px;overflow-y:auto}
+.tpool-item{border-radius:8px;padding:6px 8px;font-size:11px;border:1.5px solid;cursor:pointer;background:#0d1226}
+.tpool-item b{display:block;font-size:12px}
+.talent{border-radius:10px;padding:10px;margin:8px 0;border:2px solid;font-size:13px}
+.tF{border-color:#9aa3c7;background:#22263a}.tE{border-color:#7de6a3;background:#1d2f24}.tD{border-color:#4da3ff;background:#16283f}.tC{border-color:#c26bff;background:#2a1a3f}.tB{border-color:#ff9a3d;background:#3a2412}.tA{border-color:#ff4d5e;background:#3f1620}.tS{border-color:#f5c542;background:#3a2f10;box-shadow:0 0 10px rgba(245,197,66,.6)}.tSS{border-color:#ff5ef1;background:#3a1038;box-shadow:0 0 14px #ff5ef1}.tSSS{border-color:#fff;background:linear-gradient(135deg,#3a1038,#101a3a);box-shadow:0 0 18px #fff}.tR{border-color:transparent;background:linear-gradient(135deg,red,orange,yellow,green,blue,violet);color:#000;box-shadow:0 0 22px #fff;animation:rainbow 2s linear infinite}
+@keyframes rainbow{0%{filter:hue-rotate(0)}100%{filter:hue-rotate(360deg)}}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:800;background:#000;color:#fff;margin-right:4px}
+#gachaAnim{font-size:52px;text-align:center;padding:10px;min-height:86px}
+.rate-table{font-size:11px;width:100%;border-collapse:collapse}
+.rate-table td{border-bottom:1px solid #2c3763;padding:3px 4px}
+
+/* modal */
+#talentModal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+#talentModal.open{display:flex}
+.modal-box{max-width:520px;width:100%;background:var(--panel);border:2px solid var(--gold);border-radius:12px;padding:14px;max-height:88vh;overflow-y:auto}
+
+/* battle etc (giữ cũ) */
+.statbar{height:14px;background:#0a0d1d;border-radius:7px;overflow:hidden;margin:3px 0}
+.statbar>div{height:100%;border-radius:7px}
+.hp{background:linear-gradient(90deg,#ff4d5e,#ff8a5e)}.mp{background:linear-gradient(90deg,#4da3ff,#7de6ff)}.exp{background:linear-gradient(90deg,#3ddc84,#d3ff5e)}
+#log{flex:0 0 auto;max-height:clamp(40px,12vh,70px);overflow:auto;-webkit-overflow-scrolling:touch;background:#05070f;border:1px solid #2c3763;border-radius:8px;padding:clamp(2px,.6vh,4px) clamp(4px,1vw,6px);font-size:clamp(9px,1.7vh,11px);font-family:monospace;line-height:1.5}
+#log div{margin:1px 0}
+.tabs{display:flex;gap:clamp(2px,.6vw,4px);flex-wrap:wrap;padding:clamp(2px,.4vh,4px) clamp(2px,.5vw,4px);flex:0 0 auto;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:0 0 auto;min-width:clamp(70px,12vw,90px);padding:clamp(2px,.6vh,4px) clamp(5px,1.2vw,7px);font-size:clamp(8px,1.5vh,10px);border-radius:999px;white-space:nowrap}
+#tab-train,#tab-boss,#tab-char,#tab-bag,#tab-quest,#tab-shop,#tab-help{display:none;flex:1 1 auto;min-height:0;flex-direction:column;overflow:hidden;margin:0 clamp(2px,.5vw,4px) clamp(2px,.5vh,4px);padding:clamp(4px,1vh,6px)}
+#tab-train.active,#tab-boss.active,#tab-char.active,#tab-bag.active,#tab-quest.active,#tab-shop.active,#tab-help.active{display:flex}
+.map-scroll{flex:0 0 auto;display:flex;gap:clamp(4px,1vw,6px);overflow-x:auto;-webkit-overflow-scrolling:touch;padding:clamp(1px,.4vh,2px) clamp(2px,.5vw,4px) clamp(2px,.8vh,6px);scrollbar-width:none}
+.map-scroll::-webkit-scrollbar{display:none}
+.map-btn{flex:0 0 auto;min-width:clamp(90px,18vw,110px);padding:clamp(3px,.8vh,4px) clamp(5px,1.2vw,7px);font-size:clamp(9px,1.6vh,11px);text-align:left;border-radius:clamp(6px,1.2vw,8px)}
+.map-btn.sel{outline:1.5px solid var(--gold)}
+#stageWrap{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;background:#05070f;overflow:hidden;touch-action:none}
+#gameCanvas{display:block;height:100%;width:auto;max-width:100%;aspect-ratio:16/9;object-fit:contain;background:#05070f;touch-action:none}
+@media (orientation:portrait){#gameCanvas{height:auto;width:100%;max-height:100%}}
+#bossList,#questList,#shopList,#forgeList,#charInfo,#skillList,#talentInfo,#worn,#bagList,#helpBox{overflow:auto;-webkit-overflow-scrolling:touch;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:clamp(4px,1vh,6px);padding-right:clamp(2px,.5vw,4px)}
+.pool-list{overflow:auto;-webkit-overflow-scrolling:touch;flex:1 1 auto;min-height:0}
+.mon{border:1px solid #2c3763;border-radius:8px;padding:8px;background:var(--panel2);font-size:13px}
+.mon b{color:#ffb3ba}.mon .boss-tag{color:#ff5ef1;font-weight:800}
+.equip-common{color:#ccc}.equip-good{color:#7de6a3}.equip-rare{color:#4da3ff}.equip-epic{color:#c26bff}.equip-legend{color:#ff9a3d}.equip-myth{color:#ff4d5e}.equip-eternal{background:linear-gradient(90deg,red,orange,yellow,green,blue);-webkit-background-clip:text;color:transparent;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{border:1px solid #2c3763;padding:6px;text-align:left}
+.shop-item{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2c3763;padding:6px 0;font-size:13px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+.skill-btn{margin:3px}
+#topbar{display:flex;gap:8px;flex-wrap:wrap;font-size:13px}
+#topbar .chip{background:#0d1226;border:1px solid #37427a;border-radius:20px;padding:4px 12px}
+
+/* ===== ACTION MAP - ĐÁNH THẬT ===== */
+.map-scroll{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;-webkit-overflow-scrolling:touch}
+.map-btn{flex:0 0 auto;min-width:132px;text-align:left;padding:8px 10px;font-size:12px}
+.map-btn.sel{outline:2px solid var(--gold)}
+#stageWrap{position:relative;background:#05070f;border:1px solid #2c3763;border-radius:12px;overflow:hidden;touch-action:none}
+#gameCanvas{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#0a0d1d}
+.hud{position:absolute;top:calc(env(safe-area-inset-top,2px));left:calc(env(safe-area-inset-left,4px));right:calc(env(safe-area-inset-right,4px));display:flex;justify-content:space-between;gap:clamp(2px,.6vw,4px);pointer-events:none;font-size:clamp(8px,1.5vh,10px);z-index:5}
+.hud .hchip{background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:clamp(1px,.4vh,2px) clamp(4px,1vw,6px);backdrop-filter:blur(4px);white-space:nowrap}
+.hud-left,.hud-right{display:flex;flex-wrap:wrap;gap:clamp(2px,.5vw,4px);max-width:48vw}
+.hud-right{justify-content:flex-end}
+#bossHpWrap{position:absolute;top:calc(env(safe-area-inset-top,2px) + clamp(18px,3.5vh,24px));left:50%;transform:translateX(-50%);width:min(68vw,360px);text-align:center;display:none;z-index:6}
+#bossHpWrap .nm{font-size:clamp(9px,1.7vh,11px);font-weight:800;color:#ff7df5;text-shadow:0 2px 8px rgba(255,94,241,.5),0 1px 2px #000}
+#bossHpBar{height:clamp(4px,1.1vh,7px);background:rgba(32,6,13,.95);border:1px solid rgba(255,94,241,.85);border-radius:999px;overflow:hidden;margin-top:clamp(1px,.3vh,2px)}
+#bossHpBar>div{height:100%;background:linear-gradient(90deg,#ff7df5,#ff5ef1,#ff4d5e)}
+#joy{position:absolute;left:calc(env(safe-area-inset-left,4px));bottom:calc(env(safe-area-inset-bottom,4px));width:clamp(56px,12vh,72px);height:clamp(56px,12vh,72px);border-radius:50%;background:radial-gradient(60% 60%,rgba(255,255,255,.14),rgba(255,255,255,.08));border:1.5px solid rgba(255,255,255,.25);backdrop-filter:blur(4px);z-index:7;touch-action:none}
+#joyKnob{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:clamp(24px,5.5vh,32px);height:clamp(24px,5.5vh,32px);border-radius:50%;background:radial-gradient(60% 60%,rgba(255,222,120,.98),rgba(245,197,66,.98));box-shadow:0 4px 12px -6px rgba(245,197,66,.9)}
+.act-btns{position:absolute;right:calc(env(safe-area-inset-right,4px));bottom:calc(env(safe-area-inset-bottom,4px));display:flex;flex-direction:column;align-items:flex-end;gap:clamp(3px,.9vw,5px);z-index:7}
+.act-row{display:flex;gap:clamp(3px,.9vw,5px);align-items:flex-end;justify-content:flex-end}
+.act-btns button{width:clamp(38px,8.5vh,44px);height:clamp(38px,8.5vh,44px);border-radius:50%;padding:0;font-size:clamp(16px,3.2vh,18px);opacity:.96;background:rgba(15,20,43,.98);border:1.5px solid rgba(255,255,255,.22);backdrop-filter:blur(4px);box-shadow:0 8px 30px -14px rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center}
+.act-btns .ult{width:clamp(44px,9.5vh,50px);height:clamp(44px,9.5vh,50px);font-size:clamp(18px,4vh,22px);border-color:rgba(245,197,66,.85)}
+footer{flex:0 0 auto;text-align:center;color:var(--muted);font-size:clamp(8px,1.5vh,10px);padding:clamp(2px,.6vh,4px)}
+.act-btns button.cd{opacity:.4}
+@media(pointer:coarse){#joy{display:block}}
+.kbd-hint{font-size:11px;color:var(--muted);margin-top:6px}
+
+/* landscape ngang: bóp gọn stage cho đỡ cuộn */
+@media(max-height:520px) and (orientation:landscape){
+  header{padding:5px 10px} header h1{font-size:13px} header p{display:none}
+  #app{padding:6px;max-width:100%}
+  .stage-art{height:130px} .stage-art svg{width:110px;height:124px}
+  #gachaAnim{font-size:38px;min-height:58px;padding:4px}
+  .panel{padding:8px}
+  .wiz-nav button{min-height:46px}
+}
+</style>
+</head>
+<body>
+<header><h1>⚔️ VÕNG DU OFFLINE: CHƯ THIÊN GIÁNG LÂM</h1><p>Chọn nghề • Rút thiên phú 1 lần • Cày map • Săn Boss — tối ưu màn hình ngang</p></header>
+<div id="app">
+<div id="topbar" class="panel" style="display:none"></div>
+<div id="rotateHint" style="display:none"></div>
+
+<!-- MÀN KHỞI ĐẦU: WIZARD 2 BƯỚC CHO MOBILE -->
+<div id="scr-create" class="screen active">
+<div class="wiz">
+<div class="wiz-bar"><div class="wstep on" id="wstep1">① Chọn nhân vật</div><div class="wstep" id="wstep2">② Rút thiên phú</div></div>
+
+<!-- BƯỚC 1: CHỌN NHÂN VẬT -->
+<div id="step-char" class="cstep on">
+  <div class="panel"><h2>📝 Tên nhân vật</h2>
+    <input id="inpName" maxlength="16" placeholder="VD: Diệp Tu, Hằng La..." style="min-height:48px;font-size:16px">
+  </div>
+  <div class="char-grid">
+    <div class="panel"><h2>⚔️ Chức nghiệp (7)</h2><div class="class-list" id="classList"></div></div>
+    <div class="stage">
+      <div class="stage-art" id="stageArt"></div>
+      <div class="stage-name" id="stageName">Kiếm Khách</div>
+      <div class="stage-role" id="stageRole"></div>
+      <div id="stageStats"></div>
+      <div class="skill-mini" id="stageSkills"></div>
+      <div class="lore" id="stageLore"></div>
+    </div>
+  </div>
+  <div class="wiz-nav"><button id="btnNext" class="primary">Tiếp tục →</button></div>
+</div>
+
+<!-- BƯỚC 2: RÚT THIÊN PHÚ -->
+<div id="step-talent" class="cstep">
+  <div class="chosen-sum" id="chosenSum"></div>
+  <div class="talent-grid">
+    <div class="panel"><h2>🔮 Thiên phú — DUY NHẤT 1 LẦN</h2>
+      <div id="gachaAnim">🎰</div>
+      <div style="display:flex;gap:8px"><button id="btnGacha" class="primary" style="flex:1;min-height:52px;font-size:16px">🔮 RÚT THIÊN PHÚ</button><button id="btnDetailPool" class="small" style="min-height:52px">📖 Pool</button></div>
+      <div id="gachaResult"></div>
+      <div style="display:flex;gap:8px;margin-top:8px"><button id="btnBackChar" style="flex:1;min-height:48px">← Đổi nhân vật</button><button id="btnStart" class="primary" disabled style="flex:2;min-height:48px">🚀 VÀO GAME</button></div>
+    </div>
+    <div class="panel"><h2>📊 Tỉ lệ</h2><table class="rate-table" id="rateMini"></table>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px">Rút 1 lần khóa acc. F vẫn phá đảo được. Xem 📖 Pool để coi build.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- MÀN 2: GAME CHÍNH -->
+<div id="scr-game" class="screen">
+<div class="tabs">
+<button data-tab="train">⚔️ Luyện cấp</button><button data-tab="boss">👹 Boss</button><button data-tab="char">🧙 Nhân vật</button><button data-tab="bag">🎒 Túi đồ</button><button data-tab="quest">📜 Nhiệm vụ</button><button data-tab="shop">🏪 Shop/Rèn</button><button data-tab="help">❓ Truyện</button>
+</div>
+<div id="tab-train" class="panel"><h2>🗺 Bản đồ Chư Thiên — đánh thật</h2>
+<div class="map-scroll" id="mapList"></div>
+<div id="stageWrap">
+<canvas id="gameCanvas" width="960" height="540"></canvas>
+<div class="hud">
+  <div class="hud-left">
+    <span class="hchip" id="hudHp">❤️ 100/100</span>
+    <span class="hchip" id="hudMp">🔷 50/50</span>
+    <span class="hchip" id="hudZone">VÙNG 1</span>
+    <span class="hchip" id="hudKill">☠️ 0</span>
+    <span class="hchip" id="hudGold">💰 0</span>
+  </div>
+  <div class="hud-right">
+    <span class="hchip" id="hudLevel">Lv.1 (0%)</span>
+    <span class="hchip" id="hudExp">EXP: 0/100</span>
+    <span class="hchip" id="hudMob">MOB: 0</span>
+  </div>
+</div>
+<div id="bossHpWrap"><div class="nm" id="bossHpName"></div><div id="bossHpBar"><div></div></div></div>
+<div id="joy"><div id="joyKnob"></div></div>
+<div class="act-btns"><button id="aAtk" title="Đánh thường">⚔️</button><button id="aS1">1</button><button id="aS2">2</button><button id="aUlt" class="ult">🔥</button><button id="aPot" class="small" style="width:48px;height:48px;font-size:14px">🧪<span id="potionN">3</span></button></div>
+</div>
+<div class="kbd-hint">Mobile: joystick trái di chuyển, nút phải đánh/skill. PC: WASD + J đánh, K/L/U skill, P uống máu. Giết quái thật trên map, Boss có vòng đỏ AoE phải né.</div>
+<h3>Nhật ký server</h3><div id="log" style="height:120px"></div></div>
+<div id="tab-boss" class="panel" style="display:none"><h2>Boss từng vùng (hồi sinh 60s sau khi hạ)</h2><div id="bossList"></div></div>
+<div id="tab-char" class="panel" style="display:none"><h2>Nhân vật</h2><div id="charInfo"></div><h3>Kỹ năng chức nghiệp</h3><div id="skillList"></div><h3>Thiên phú (khóa vĩnh viễn)</h3><div id="talentInfo"></div></div>
+<div id="tab-bag" class="panel" style="display:none"><h2>Túi đồ & Trang bị đang mặc</h2><div class="grid g2"><div><h3>Đang mặc</h3><div id="worn"></div></div><div><h3>Ba lô</h3><div id="bagList"></div></div></div></div>
+<div id="tab-quest" class="panel" style="display:none"><h2>Nhiệm vụ chính tuyến</h2><div id="questList"></div></div>
+<div id="tab-shop" class="panel" style="display:none"><h2>Cửa hàng & Lò rèn</h2><div id="shopList"></div><h3>Cường hóa món đang mặc (+1..+15, tốn vàng, xịt không mất đồ)</h3><div id="forgeList"></div></div>
+<div id="tab-help" class="panel" style="display:none"><h2>Tổng hợp thiết kế</h2><div id="helpBox" style="font-size:13px;line-height:1.8"></div>
+<button id="btnWipe" class="danger">🗑 Xóa nhân vật (chơi lại từ đầu, được rút lại thiên phú)</button></div>
+</div>
+</div>
+<footer>Võng Du Offline • save tự động trong trình duyệt • ver 1.1 landscape</footer>
+
+<!-- MODAL CHI TIẾT THIÊN PHÚ -->
+<div id="talentModal"><div class="modal-box">
+<h2 style="color:var(--gold)">📖 Bể thiên phú chi tiết (F→R)</h2>
+<p style="font-size:12px;color:var(--muted)">Bấm từng thiên phú để xem build gợi ý. Tổng 40 loại, rút 1 lần khóa acc.</p>
+<div class="talent-pool" id="talentPool" style="max-height:220px"></div>
+<div id="talentDetail" style="margin-top:8px"></div>
+<div style="text-align:right;margin-top:8px"><button id="btnCloseModal" class="small">Đóng</button></div>
+</div></div>
+
+<script>
+"use strict";
+/* ============ ART SVG CHI TIẾT 7 NHÂN VẬT ============ */
+const ART={
+kiem:`<svg viewBox="0 0 120 140"><ellipse cx="60" cy="132" rx="30" ry="6" fill="black" opacity=".4"/><rect x="42" y="58" width="36" height="52" rx="8" fill="#3a5bff" stroke="#bcd2ff" stroke-width="2"/><rect x="48" y="64" width="24" height="30" rx="4" fill="#1a2a7a"/><circle cx="60" cy="38" r="18" fill="#ffd9b3" stroke="#7a4a21" stroke-width="2"/><path d="M42 34 Q60 8 78 34 L76 26 Q60 2 44 26 Z" fill="#c9d6ff" stroke="#5a6fa8" stroke-width="2"/><circle cx="53" cy="38" r="2.4" fill="#111"/><circle cx="67" cy="38" r="2.4" fill="#111"/><path d="M54 48 Q60 52 66 48" stroke="#7a4a21" stroke-width="2" fill="none"/><rect x="86" y="20" width="7" height="90" rx="3" fill="#c9d6ff" stroke="#fff" stroke-width="1"/><polygon points="89,8 95,20 83,20" fill="#f5c542" stroke="#a86e00" stroke-width="1.5"/><rect x="78" y="66" width="22" height="6" rx="3" fill="#6b4a1f"/><rect x="30" y="62" width="10" height="34" rx="4" fill="#2c3763" stroke="#9aa3c7"/></svg>`,
+khien:`<svg viewBox="0 0 120 140"><ellipse cx="60" cy="132" rx="32" ry="6" fill="black" opacity=".4"/><rect x="36" y="56" width="48" height="58" rx="10" fill="#5a6478" stroke="#dfe6f5" stroke-width="2"/><rect x="44" y="62" width="32" height="10" rx="3" fill="#9aa3c7"/><circle cx="60" cy="36" r="19" fill="#ffcf9e" stroke="#333" stroke-width="2"/><path d="M40 32 Q60 4 80 32 L80 22 Q60 -2 40 22 Z" fill="#2f3a55" stroke="#f5c542" stroke-width="2"/><circle cx="53" cy="36" r="2.4" fill="#111"/><circle cx="67" cy="36" r="2.4" fill="#111"/><rect x="12" y="56" width="26" height="52" rx="10" fill="#1a2a7a" stroke="#f5c542" stroke-width="2.5"/><circle cx="25" cy="82" r="8" fill="#f5c542"/><rect x="84" y="60" width="12" height="44" rx="4" fill="#7a4a21"/><rect x="80" y="48" width="20" height="14" rx="4" fill="#c9d6ff" stroke="#fff"/></svg>`,
+phap:`<svg viewBox="0 0 120 140"><ellipse cx="60" cy="132" rx="28" ry="6" fill="black" opacity=".4"/><polygon points="60,4 88,52 32,52" fill="#2a1a6a" stroke="#c26bff" stroke-width="2"/><circle cx="60" cy="62" r="15" fill="#ffe3c2" stroke="#5a3a1a" stroke-width="2"/><circle cx="55" cy="62" r="2.2" fill="#111"/><circle cx="65" cy="62" r="2.2" fill="#111"/><path d="M38 78 Q60 70 82 78 L86 120 Q60 128 34 120 Z" fill="#3d2b9e" stroke="#c26bff" stroke-width="2"/><circle cx="60" cy="96" r="6" fill="#4da3ff"/><rect x="88" y="40" width="5" height="80" rx="2" fill="#6b4a1f"/><circle cx="90" cy="32" r="10" fill="#4da3ff" stroke="#fff" stroke-width="2"/><circle cx="90" cy="32" r="4" fill="#fff"/></svg>`,
+thich:`<svg viewBox="0 0 120 140"><ellipse cx="60" cy="132" rx="28" ry="6" fill="black" opacity=".4"/><path d="M34 58 Q60 10 86 58 L80 62 Q60 28 40 62 Z" fill="#1a1d2e" stroke="#ff4d5e" stroke-width="2"/><circle cx="60" cy="54" r="14" fill="#f0c8a0"/><rect x="48" y="52" width="24" height="9" rx="4" fill="#111"/><circle cx="55" cy="57" r="1.8" fill="#ff4d5e"/><circle cx="65" cy="57" r="1.8" fill="#ff4d5e"/><rect x="42" y="70" width="36" height="46" rx="8" fill="#23263a" stroke="#ff4d5e" stroke-width="1.5"/><polygon points="30,90 18,108 28,110" fill="#c9d6ff" stroke="#fff"/><polygon points="90,90 102,108 92,110" fill="#c9d6ff" stroke="#fff"/></svg>`,
+cung:`<svg viewBox="0 0 120 140"><ellipse cx="60" cy="132" rx="28" ry="6" fill="black" opacity=".4"/><path d="M40 34 Q60 12 80 34 L76 44 Q60 28 44 44 Z" fill="#2e7d32" stroke="#3ddc84" stroke-width="2"/><circle cx="60" cy="50" r="13" fill="#ffd9b3" stroke="#2e5a2e" stroke-width="2"/><rect x="46" y="66" width="28" height="48" rx="8" fill="#2e7d32" stroke="#b9f5c6" stroke-width="2"/><path d="M88 20 Q106 60 88 110" fill="none" stroke="#6b4a1f" stroke-width="4"/><line x1="88" y1="20" x2="88" y2="110" stroke="#fff" stroke-width="1"/><line x1="88" y1="65" x2="62" y2="65" stroke="#f5c542" stroke-width="3"/><polygon points="62,60 52,65 62,70" fill="#ff4d5e"/></svg>`,
+muc:`<svg viewBox="0 0 120 140"><ellipse cx="60" cy="40" rx="22" ry="6" fill="#ffe27d" opacity=".6"/><circle cx="60" cy="52" r="14" fill="#ffe9c9" stroke="#8a6d1a" stroke-width="2"/><circle cx="55" cy="52" r="2" fill="#111"/><circle cx="65" cy="52" r="2" fill="#111"/><path d="M40 72 Q60 64 80 72 L84 120 Q60 128 36 120 Z" fill="#fff" stroke="#f5c542" stroke-width="2"/><rect x="56" y="84" width="8" height="26" rx="2" fill="#f5c542"/><rect x="49" y="90" width="22" height="8" rx="2" fill="#f5c542"/><rect x="90" y="50" width="4" height="70" rx="2" fill="#c9a600"/><circle cx="92" cy="42" r="8" fill="#fff" stroke="#f5c542" stroke-width="2"/></svg>`,
+trieu:`<svg viewBox="0 0 120 140"><ellipse cx="60" cy="132" rx="28" ry="6" fill="black" opacity=".4"/><circle cx="60" cy="46" r="15" fill="#e8c8ff" stroke="#5a1a7a" stroke-width="2"/><path d="M44 40 L38 24 L52 32 Z M76 40 L82 24 L68 32 Z" fill="#5a1a7a"/><rect x="42" y="64" width="36" height="52" rx="10" fill="#4a1a7a" stroke="#ff5ef1" stroke-width="2"/><circle cx="60" cy="88" r="7" fill="#ff5ef1"/><circle cx="28" cy="112" r="14" fill="#9aa3c7" stroke="#333" stroke-width="2"/><circle cx="23" cy="108" r="2" fill="#111"/><circle cx="33" cy="108" r="2" fill="#111"/><path d="M20 100 L16 90 L26 96 Z M36 100 L40 90 L30 96 Z" fill="#9aa3c7" stroke="#333"/></svg>`
+};
+/* ============ DATA: CHỨC NGHIỆP + META CHI TIẾT ============ */
+const CLASSES={
+kiem:{name:"Kiếm Khách",role:"DPS cân bằng • Bạo kích",diff:"⭐⭐ Dễ chơi",lore:"Đệ tử Kiếm Tông thất lạc. Kiếm nhanh như chớp, càng đánh càng hăng. Hợp người mới nhưng late vẫn top solo nhờ Vô Hình Kiếm.",curve:"Đầu game ★★★★ • Giữa ★★★★★ • Cuối ★★★★",desc:"Cân bằng, bạo kích cao. Vũ khí: kiếm.",base:{hp:120,mp:60,atk:16,def:8,spd:12,crit:15,dodge:8},skills:[{n:"Trảm Nguyệt",m:8,cd:3,mult:1.6},{n:"Kiếm Ảnh Bộ (2 hit)",m:14,cd:5,mult:2.2},{n:"Vô Hình Kiếm (ult)",m:30,cd:10,mult:4.0}]},
+khien:{name:"Chiến Sĩ Khiên",role:"Tank trâu nhất • Phản đòn",diff:"⭐ Rất dễ",lore:"Cựu binh Hắc Thạch Thành. Ôm khiên là bất tử. Dame thấp nhưng cắm auto cả ngày không chết, hợp thiên phú Hút Máu / Phản Đòn.",curve:"Đầu ★★★★★ • Giữa ★★★ • Cuối ★★★",desc:"Trâu nhất, phản đòn. Vũ khí: đao khiên.",base:{hp:220,mp:30,atk:12,def:16,spd:6,crit:5,dodge:3},skills:[{n:"Thuẫn Kích",m:6,cd:3,mult:1.4},{n:"Phản Giáp Gai",m:10,cd:6,mult:1.2},{n:"Bất Động Như Sơn (giáp+heal)",m:20,cd:10,mult:0.5}]},
+phap:{name:"Pháp Sư",role:"Nuke AoE • Đốt mana",diff:"⭐⭐⭐ Khó",lore:"Học đồ Ma Tháp. Một quả Thiên Thạch là bay cả bãi quái. Tốn mana, máu giấy, nhưng đi với Suối Mana / Vô Hạn Mana là thành máy xóa map.",curve:"Đầu ★★ • Giữa ★★★★★ • Cuối ★★★★★",desc:"Dame phép to nhất, tốn mana. Vũ khí: trượng.",base:{hp:80,mp:150,atk:24,def:5,spd:9,crit:10,dodge:5},skills:[{n:"Hỏa Cầu",m:10,cd:2,mult:1.8},{n:"Băng Phong Bạo",m:22,cd:6,mult:2.8},{n:"Thiên Thạch (ult)",m:45,cd:12,mult:5.0}]},
+thich:{name:"Thích Khách",role:"Burst đơn • Né + crit",diff:"⭐⭐⭐⭐ Rất khó",lore:"Sát thủ Dạ Ảnh. Xá Mệnh Nhất Kích 5.5x dame — Boss chưa kịp gồng đã nằm. Máu giấy, né hụt là nằm.",curve:"Đầu ★★★ • Giữa ★★★★ • Cuối ★★★★★",desc:"Né + chí mạng khủng, máu giấy. Vũ khí: dao găm.",base:{hp:95,mp:60,atk:20,def:6,spd:18,crit:25,dodge:18},skills:[{n:"Cắt Cổ",m:8,cd:3,mult:2.0},{n:"Hồ Quang Thiểm",m:15,cd:5,mult:2.6},{n:"Xá Mệnh Nhất Kích (ult)",m:30,cd:11,mult:5.5}]},
+cung:{name:"Cung Thủ",role:"Đánh xa • Thả diều Boss",diff:"⭐⭐ Dễ",lore:"Thợ săn Hoang Dã. Vạn Tiễn Xuyên Tâm + pet thả diều. Săn Boss ẩn ngon nhất, farm nhàn, hợp người lười bấm.",curve:"Đầu ★★★★ • Giữa ★★★★ • Cuối ★★★★",desc:"Đánh xa, thả diều, săn boss tốt. Vũ khí: cung.",base:{hp:105,mp:70,atk:18,def:7,spd:15,crit:18,dodge:12},skills:[{n:"Xuyên Tâm Tiễn",m:8,cd:3,mult:1.7},{n:"Bạo Viêm Tiễn",m:16,cd:5,mult:2.4},{n:"Vạn Tiễn Xuyên Tâm (ult)",m:35,cd:11,mult:4.5}]},
+muc:{name:"Mục Sư",role:"Heal + buff • Khắc quái暗",diff:"⭐⭐⭐ Khó đầu",lore:"Thánh nữ Thần Điện. Solo khổ nhất 20 cấp đầu, nhưng có Trị Liệu + Thần Phạt là solo Boss không tốn máu. Team AI bắt buộc có.",curve:"Đầu ★★ • Giữa ★★★ • Cuối ★★★★★",desc:"Hồi máu + buff, khắc quái暗. Vũ khí: quyền trượng.",base:{hp:110,mp:120,atk:13,def:9,spd:8,crit:8,dodge:6},skills:[{n:"Thánh Quang Đạn",m:8,cd:3,mult:1.5},{n:"Trị Liệu (heal 40%)",m:18,cd:6,mult:0},{n:"Thần Phạt (ult)",m:35,cd:12,mult:4.2}]},
+trieu:{name:"Triệu Hoán Sư",role:"Pet đè người • Late vô địch",diff:"⭐⭐ Dễ",lore:"Hậu duệ Vạn Thú Môn. Pet Ma Lang cắn kèm 50% atk mỗi skill. Càng late pet càng trâu, chủ núp sau buff.",curve:"Đầu ★★★ • Giữa ★★★★ • Cuối ★★★★★",desc:"Có pet đánh kèm, càng late càng mạnh.",base:{hp:100,mp:110,atk:14,def:7,spd:10,crit:10,dodge:7},skills:[{n:"Lệnh: Cắn Xé (pet)",m:8,cd:3,mult:1.8},{n:"Triệu Hồi Ma Lang",m:18,cd:7,mult:2.5},{n:"Vạn Thú Triều (ult)",m:38,cd:12,mult:4.8}]}
+};
+/* ============ DATA: THIÊN PHÚ F->R + BUILD GỢI Ý ============ */
+const TALENTS=[
+{t:"F",n:"Người Chạy Nhanh",d:"+10% tốc độ, +5% né.",build:"Hợp Thích Khách/Cung: thả diều. Farm nhanh.",fx:{spd:.10,dodge:5}},
+{t:"F",n:"Thợ Mỏ Cần Cù",d:"Bán rác +30% vàng, +5% thủ.",build:"Hợp Khiên/Mục: cày vàng mua rương.",fx:{defP:.05,goldP:.30}},
+{t:"F",n:"Đầu Bếp Hoang Dã",d:"Bình máu hồi +50%.",build:"Hợp mọi nghề máu giấy.",fx:{potionP:.5}},
+{t:"F",n:"Vua Nhặt Rác",d:"+15% tỉ lệ rớt đồ trắng.",build:"Mồi cho Tiến Hóa nếu ra sớm.",fx:{dropP:.15}},
+{t:"F",n:"Lì Đòn",d:"+8% HP tối đa.",build:"Khiên càng trâu.",fx:{hpP:.08}},
+{t:"F",n:"Mọt Sách",d:"+10% EXP.",build:"Lên cấp nhanh gỡ gạc.",fx:{expP:.10}},
+{t:"E",n:"Da Cứng",d:"+8% thủ.",build:"Khiên/Mục.",fx:{defP:.08}},
+{t:"E",n:"Mắt Tinh",d:"+8% bạo kích.",build:"Kiếm/Thích/Cung.",fx:{crit:8}},
+{t:"E",n:"Tay Nhanh",d:"+8% tốc, đánh trước.",build:"Thích Khách cướp lượt.",fx:{spd:.08}},
+{t:"E",n:"Tiết Kiệm Mana",d:"Skill tốn -20% mana.",build:"Pháp Sư core.",fx:{manaSave:.2}},
+{t:"E",n:"Dạ Dày Sắt",d:"+12% HP, bình máu +20%.",build:"Tanker.",fx:{hpP:.12,potionP:.2}},
+{t:"E",n:"Kẻ Liều Mạng",d:"+10% công, -5% thủ.",build:"DPS khô máu.",fx:{atkP:.10}},
+{t:"D",n:"Hồi Máu Nhỏ",d:"Hồi 2% HP mỗi lượt.",build:"Auto farm không tốn máu.",fx:{regen:.02}},
+{t:"D",n:"Cường Hóa Công",d:"+12% công.",build:"Mọi DPS.",fx:{atkP:.12}},
+{t:"D",n:"Cường Hóa Thủ",d:"+12% thủ.",build:"Khiên.",fx:{defP:.12}},
+{t:"D",n:"Hút Máu",d:"Hút 5% sát thương thành HP.",build:"Kiếm/Thích core.",fx:{lifesteal:.05}},
+{t:"D",n:"May Mắn Nhỏ",d:"+20% rớt đồ, +10% vàng.",build:"Cày đồ.",fx:{dropP:.2,goldP:.1}},
+{t:"D",n:"Thợ Săn Quái",d:"+15% sát thương lên quái thường.",build:"Cày cấp thần tốc.",fx:{mobDmg:.15}},
+{t:"C",n:"Cuồng Nộ",d:"Dưới 30% HP: +40% công.",build:"Thích/Kiếm lật kèo Boss.",fx:{rage:.4}},
+{t:"C",n:"Né Tránh Cao Cấp",d:"+12% né.",build:"Thích Khách né 30%+.",fx:{dodge:12}},
+{t:"C",n:"Phản Đòn",d:"Phản 20% sát thương nhận.",build:"Khiên phản chết Boss.",fx:{reflect:.2}},
+{t:"C",n:"Suối Mana",d:"Hồi 5 MP mỗi lượt.",build:"Pháp Sư/Mục Sư.",fx:{mpRegen:5}},
+{t:"C",n:"Thợ Săn Boss",d:"+25% sát thương lên Boss.",build:"Săn thủ sát.",fx:{bossDmg:.25}},
+{t:"C",n:"Giảm Cooldown",d:"Skill hồi -2 lượt.",build:"Spam ult.",fx:{cdr:2}},
+{t:"B",n:"Bạo Kích Vương",d:"+15% bạo, bạo x2.",build:"Thích/Cung one-shot.",fx:{crit:15}},
+{t:"B",n:"Hút Máu Cao",d:"Hút 10% sát thương.",build:"Solo Boss không tốn máu.",fx:{lifesteal:.10}},
+{t:"B",n:"Miễn Thương",d:"Giảm 12% sát thương nhận.",build:"Tank.",fx:{reduce:.12}},
+{t:"B",n:"Liên Kích",d:"20% đánh thêm 1 đòn 50%.",build:"DPS đột biến.",fx:{double:0.2}},
+{t:"B",n:"Hỏa Cầu Thuật",d:"Thêm skill Hỏa Cầu x2.0 (4 mana).",build:"Mọi nghề có nuke.",fx:{extraSkill:true}},
+{t:"A",n:"Bất Tử",d:"Mỗi trận 1 lần: chết hồi 50% HP.",build:"Đi tháp cao.",fx:{revive:1}},
+{t:"A",n:"Con Cưng EXP",d:"+80% EXP.",build:"Lên 100 nhanh nhất.",fx:{expP:.8}},
+{t:"A",n:"Thần Tài",d:"+100% vàng.",build:"Đại gia đấu giá.",fx:{goldP:1}},
+{t:"A",n:"Thiên Sứ Hộ Thể",d:"Vào trận có khiên = 30% HP.",build:"Pháp Sư sống sót.",fx:{shield:.3}},
+{t:"S",n:"Vô Hạn Trưởng Thành",d:"Mỗi 5 cấp +2% toàn chỉ số.",build:"Càng late càng thần, Lv100 +40%.",fx:{growth:.02}},
+{t:"S",n:"Chí Cường Cường Hóa",d:"+40% công, +20% thủ.",build:"DPS toàn năng.",fx:{atkP:.4,defP:.2}},
+{t:"S",n:"Thời Gian Hồi Hưởng",d:"Mỗi trận hồi sinh full 1 lần.",build:"Bất tử đi Boss.",fx:{reviveFull:1}},
+{t:"SS",n:"Hỗn Độn Thôn Phệ",d:"+60% công, hút 12%, +30% rớt đồ.",build:"Solo mọi Boss.",fx:{atkP:.6,lifesteal:.12,dropP:.3}},
+{t:"SS",n:"Thần Lai Chi Thủ",d:"30% trộm thêm 1 món khi hạ quái, +50% vàng.",build:"Farm đồ giàu nhất.",fx:{steal:.3,goldP:.5}},
+{t:"SSS",n:"Luân Hồi Ấn",d:"+100% EXP, chết không mất EXP, +50% công thủ.",build:"Main truyện: cày + trâu.",fx:{expP:1,atkP:.5,defP:.5,noExpLoss:true}},
+{t:"SSS",n:"Vô Hạn Tiến Hóa",d:"Rớt đồ +1 phẩm, +25% bạo.",build:"Full đỏ/cầu vồng sớm.",fx:{evo:true,crit:25}},
+{t:"R",n:"🌈 THẦN SÁNG THẾ",d:"+100% toàn chỉ số, hồi 5%/lượt, hồi sinh vô hạn, rớt đồ +2 phẩm.",build:"Phá game: auto cũng qua.",fx:{atkP:1,defP:1,hpP:1,regen:.05,reviveInf:true,evo2:true,expP:.5,goldP:.5}}
+];
+const RATES=[["F",25],["E",20],["D",18],["C",14],["B",10],["A",5],["S",2.5],["SS",1.2],["SSS",0.25],["R",0.05]];
+const TICON={F:"⬜",E:"🟩",D:"🟦",C:"🟪",B:"🟧",A:"🟥",S:"🟨",SS:"🌸",SSS:"💠",R:"🌈"};
+/* ============ DATA: MAP / QUÁI / BOSS ============ */
+const ZONES=[
+{z:"Tân Thủ Thôn",lv:[1,10],mobs:[["Gà Rừng",1,30,6,2],["Heo Rừng",3,60,9,4],["Khỉ Đá",6,110,14,7],["Sói Con",8,160,19,10]],boss:["Lang Vương",10,600,45,20]},
+{z:"Rừng Ma Lang",lv:[10,22],mobs:[["Ma Lang",11,300,35,18],["Nhện Độc",14,420,48,24],["Ong Chúa Con",18,600,65,32],["Gấu Xám",20,800,80,40]],boss:["Ma Lang Vương",22,2500,150,70]},
+{z:"Hầm Ngục U Ám",lv:[22,35],mobs:[["Xác Sống",23,1200,120,60],["Dơi Quỷ",26,1500,150,75],["Vu Sư Học Việc",30,1900,185,90],["Kỵ Sĩ Không Đầu",33,2400,220,110]],boss:["Vu Yêu",35,7000,340,160]},
+{z:"Sa Mạc Tử Vong",lv:[35,50],mobs:[["Bọ Cạp Cát",36,3200,300,140],["Xác Ướp",40,4000,360,170],["Kền Kền Lửa",44,4800,420,200],["Người Cát",48,5600,480,230]],boss:["Vua Bọ Cạp",50,16000,700,320]},
+{z:"Hỏa Diệm Sơn",lv:[50,65],mobs:[["Quỷ Lửa",51,7500,620,280],["Dung Nham Thú",55,9000,720,330],["Hỏa Xà",60,11000,850,390],["Viêm Ma",63,13000,950,440]],boss:["Viêm Ma Chúa",65,35000,1400,600]},
+{z:"Vực Thẳm Hỗn Độn",lv:[65,85],mobs:[["Ác Ma Sừng",66,17000,1200,550],["Hư Không Thú",72,22000,1450,650],["Đọa Thiên Sứ",78,28000,1700,780],["Hỗn Độn Thủ Vệ",83,34000,1950,900]],boss:["Hỗn Độn Ma Thần",85,90000,2800,1200]},
+{z:"Thần Vực Chư Thiên",lv:[85,120],mobs:[["Thần Thú Bạch Hổ",86,45000,2400,1100],["Thần Thú Huyền Vũ",92,55000,2700,1300],["Thiên Binh",100,70000,3200,1500],["Thần Tướng",110,90000,3800,1800]],boss:["Hắc Ám Thần",120,250000,5500,2400]}
+];
+const GRADES=[["Thường","equip-common"],["Tốt","equip-good"],["Hiếm","equip-rare"],["Sử Thi","equip-epic"],["Truyền Thuyết","equip-legend"],["Thần Thoại","equip-myth"],["Vĩnh Hằng","equip-eternal"]];
+const SLOTS=["Vũ khí","Giáp","Nón","Giày","Nhẫn","Dây chuyền"];
+const QUESTS=[
+{n:"Diệt 5 Gà Rừng",need:{kills:5},rw:{exp:50,gold:20},done:false},
+{n:"Đạt cấp 10, hạ Lang Vương",need:{level:10},rw:{exp:300,gold:150},done:false},
+{n:"Hạ Ma Lang Vương",need:{boss:"Ma Lang Vương"},rw:{exp:1500,gold:600},done:false},
+{n:"Đạt cấp 35, hạ Vu Yêu",need:{level:35},rw:{exp:6000,gold:2500},done:false},
+{n:"Hạ Viêm Ma Chúa",need:{boss:"Viêm Ma Chúa"},rw:{exp:25000,gold:10000},done:false},
+{n:"Hạ Hắc Ám Thần — trảm Thần",need:{boss:"Hắc Ám Thần"},rw:{exp:200000,gold:80000},done:false}
+];
+/* ============ STATE ============ */
+let S=null, selClass="kiem", drawn=null, curZone=0, curMob=null, auto=false, autoT=null, cd=[0,0,0], shieldHp=0, revives=0, bossCd={};
+function save(){try{localStorage.setItem("votiem_offline_v1",JSON.stringify({S,bossCd}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem("votiem_offline_v1"));if(d&&d.S){S=d.S;bossCd=d.bossCd||{};return true}}catch(e){}return false}
+function log(msg,cls){const l=document.getElementById("log");if(!l)return;const d=document.createElement("div");if(cls)d.className=cls;d.innerHTML=msg;l.prepend(d);while(l.children.length>120)l.lastChild.remove()}
+function expNeed(l){return Math.floor(60*Math.pow(l,1.55)+40*l)}
+function fx(){return (drawn&&drawn.fx)||(S&&S.talent&&S.talent.fx)||{}}
+function calcStats(){
+ const c=CLASSES[S.cls].base,f=(S.talent&&S.talent.fx)||{};const g=S.level>=5&&f.growth?1+f.growth*Math.floor(S.level/5):1;
+ const eq={atk:0,def:0,hp:0};for(const k of ["wp","ar","hat","sh","ri","am"]){const it=S.worn[k];if(it){eq.atk+=it.atk||0;eq.def+=it.def||0;eq.hp+=it.hp||0}}
+ const atk=Math.floor(((c.atk*4+c.atk*S.level*0.6)+eq.atk)*(1+(f.atkP||0))*g);
+ const def=Math.floor(((c.def*4+c.def*S.level*0.6)+eq.def)*(1+(f.defP||0))*g);
+ const hp=Math.floor(((c.hp+c.hp*S.level*0.35)+eq.hp)*(1+(f.hpP||0))*g);
+ return {atk,def,maxhp:hp,maxmp:Math.floor(c.mp+c.mp*S.level*0.25),spd:Math.floor(c.spd*(1+(f.spd||0))),crit:c.crit+(f.crit||0),dodge:c.dodge+(f.dodge||0)};
+}
+function rollTalent(){const r=Math.random()*100;let a=0;for(const [t,p]of RATES){a+=p;if(r<a){const pool=TALENTS.filter(x=>x.t===t);return pool[Math.floor(Math.random()*pool.length)]}}return TALENTS[0]}
+/* ============ CREATE UI MỚI ============ */
+function statBar(label,val,max,color){return `<div class="stat-row"><span>${label}</span><div class="bar"><div style="width:${Math.min(100,val/max*100)}%;background:${color}"></div></div><span>${val}</span></div>`}
+function renderClasses(){
+ const el=document.getElementById("classList");el.innerHTML="";
+ for(const k in CLASSES){const c=CLASSES[k];
+  const d=document.createElement("div");d.className="class-card"+(k===selClass?" sel":"");
+  d.innerHTML=`<div class="art">${ART[k]}</div><div><h4>${c.name} <span class="tag">${c.role.split("•")[0]}</span></h4><p>${c.desc}</p><p class="diff">${c.diff} • ${c.curve.split("•")[0]}</p></div>`;
+  d.onclick=()=>{selClass=k;renderClasses();renderStage()};
+  el.appendChild(d)}
+}
+function renderStage(){
+ const c=CLASSES[selClass];
+ document.getElementById("stageArt").innerHTML=ART[selClass];
+ document.getElementById("stageName").textContent=c.name;
+ document.getElementById("stageRole").textContent=c.role+" • "+c.diff;
+ const b=c.base;
+ document.getElementById("stageStats").innerHTML=
+  statBar("❤️ HP",b.hp,220,"#ff4d5e")+statBar("🔷 MP",b.mp,150,"#4da3ff")+
+  statBar("⚔️ Công",b.atk,24,"#f5c542")+statBar("🛡 Thủ",b.def,16,"#3ddc84")+statBar("👟 Tốc",b.spd,18,"#7de6ff");
+ document.getElementById("stageSkills").innerHTML=c.skills.map(s=>`<div><b>${s.n}</b>x${s.mult} • ${s.m}🔷</div>`).join("");
+ document.getElementById("stageLore").innerHTML=`📖 <b>${c.name}:</b> ${c.lore}<br>📈 <b>Độ mạnh:</b> ${c.curve}<br>💡 <b>Gợi ý thiên phú:</b> ${suggestFor(selClass)}`;
+}
+function suggestFor(cls){
+ if(cls==="phap")return "Suối Mana (C), Tiết Kiệm Mana (E), Chí Cường (S)";
+ if(cls==="thich")return "Né (C), Bạo Vương (B), Cuồng Nộ (C)";
+ if(cls==="khien")return "Phản Đòn (C), Hút Máu (D), Miễn Thương (B)";
+ if(cls==="cung")return "Thợ Săn Boss (C), Liên Kích (B)";
+ if(cls==="muc")return "Hồi Máu (D), Thiên Sứ Hộ Thể (A)";
+ if(cls==="trieu")return "May Mắn (D), Thần Lai Chi Thủ (SS)";
+ return "Hút Máu (D), Cuồng Nộ (C), Vô Hạn Trưởng Thành (S)";
+}
+function renderRateMini(){
+ document.getElementById("rateMini").innerHTML=RATES.map(([t,p])=>`<tr><td>${TICON[t]} [${t}]</td><td style="text-align:right">${p}%</td></tr>`).join("");
+}
+function renderPool(){
+ const el=document.getElementById("talentPool");el.innerHTML="";
+ TALENTS.forEach((t,i)=>{
+  const d=document.createElement("div");d.className="tpool-item t"+t.t;
+  d.innerHTML=`<b>${TICON[t.t]} [${t.t}] ${t.n}</b><span style="font-size:10px">${t.d}</span>`;
+  d.onclick=()=>{document.getElementById("talentDetail").innerHTML=`<div class="talent t${t.t}"><span class="badge">[${t.t}]</span><b>${t.n}</b><br>${t.d}<br>💡 <b>Build:</b> ${t.build}</div>`};
+  el.appendChild(d)});
+}
+function renderChosenSum(){
+ const c=CLASSES[selClass];const nm=(document.getElementById("inpName").value||"Vô Danh").slice(0,16);
+ document.getElementById("chosenSum").innerHTML=`<div class="mini">${ART[selClass]}</div><div style="flex:1"><b style="color:var(--gold)">${nm}</b> • ${c.name}<br><span style="font-size:11px;color:var(--muted)">${c.role}</span></div><button class="small" id="btnEditName">Sửa</button>`;
+ document.getElementById("btnEditName").onclick=()=>showStep(1);
+}
+function showStep(n){
+ document.getElementById("step-char").classList.toggle("on",n===1);
+ document.getElementById("step-talent").classList.toggle("on",n===2);
+ document.getElementById("wstep1").classList.toggle("on",n===1);
+ document.getElementById("wstep2").classList.toggle("on",n===2);
+ document.getElementById("wstep1").classList.toggle("done",n===2);
+ if(n===2)renderChosenSum();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.getElementById("btnNext").onclick=()=>{
+ const v=document.getElementById("inpName").value.trim();
+ if(!v){if(confirm("Chưa nhập tên, dùng tên Vô Danh?")){document.getElementById("inpName").value="Vô Danh";showStep(2)}return}
+ showStep(2);
+};
+document.getElementById("btnBackChar").onclick=()=>showStep(1);
+document.getElementById("inpName").addEventListener("input",()=>{if(document.getElementById("step-talent").classList.contains("on"))renderChosenSum()});
+document.getElementById("btnDetailPool").onclick=()=>{renderPool();document.getElementById("talentDetail").innerHTML="";document.getElementById("talentModal").classList.add("open")};
+document.getElementById("btnCloseModal").onclick=()=>document.getElementById("talentModal").classList.remove("open");
+document.getElementById("talentModal").onclick=(e)=>{if(e.target.id==="talentModal")e.target.classList.remove("open")};
+document.getElementById("btnGacha").onclick=()=>{
+ if(drawn)return;const btn=document.getElementById("btnGacha");btn.disabled=true;
+ const anim=document.getElementById("gachaAnim");let i=0;
+ const iv=setInterval(()=>{const keys=Object.keys(TICON);anim.textContent=TICON[keys[i%10]];i++;if(i>22){clearInterval(iv);
+  drawn=rollTalent();anim.textContent=TICON[drawn.t];
+  document.getElementById("gachaResult").innerHTML=`<div class="talent t${drawn.t}"><span class="badge">[${drawn.t}]</span><b>${drawn.n}</b><br><span>${drawn.d}</span><br>💡 <b>Build gợi ý:</b> ${drawn.build}</div>`;
+  document.getElementById("wstep2").classList.add("on");
+  document.getElementById("btnStart").disabled=false;
+  document.getElementById("btnStart").scrollIntoView({behavior:"smooth",block:"nearest"});
+ }},90);
+};
+document.getElementById("btnStart").onclick=()=>{
+ const name=(document.getElementById("inpName").value||"Vô Danh").slice(0,16);if(!drawn)return;
+ const c=CLASSES[selClass].base;
+ S={name,cls:selClass,talent:drawn,level:1,exp:0,gold:100,potions:3,kills:0,bossKills:[],bag:[],worn:{wp:null,ar:null,hat:null,sh:null,ri:null,am:null},base:{hp:c.hp,mp:c.mp,atk:c.atk,def:c.def,spd:c.spd,crit:c.crit,dodge:c.dodge},chp:9999,cmp:9999};
+ S.worn.wp={slot:"Vũ khí",g:0,name:"Kiếm Gỗ Cùn",atk:3,def:0,hp:0,plus:0};
+ const stInit=calcStats();S.chp=stInit.maxhp;S.cmp=stInit.maxmp;
+ save();enterGame();
+};
+function calcStats0(sv){const c=CLASSES[sv.cls].base;return {maxhp:Math.floor(sv.base.hp),maxmp:Math.floor(sv.base.mp)}}
+function enterGame(){
+ document.getElementById("scr-create").classList.remove("active");document.getElementById("scr-game").classList.add("active");
+ document.getElementById("topbar").style.display="flex";refreshTop();renderMaps();renderBoss();renderChar();renderBag();renderQuests();renderShop();renderHelp();
+ log(`🌍 Chào mừng <b class="sys">${S.name} [${CLASSES[S.cls].name} | Thiên phú ${S.talent.t}: ${S.talent.n}]</b> tiến vào Chư Thiên!`,"sys");
+ log(`📖 Map tham khảo truyện: Tân Thủ Thôn (Toàn Chức) → Rừng Ma Lang → Hầm Ngục (Vĩnh Hằng) → Sa Mạc → Hỏa Diệm Sơn → Vực Hỗn Độn → Thần Vực trảm Thần (Hư Không). Điều khiển và dùng skill thật!`,"sys");
+ if(typeof initAction==="function")initAction();
+}
+/* ============ TOP ============ */
+function refreshTop(){
+  if(!S)return;
+  const st=calcStats();
+  document.getElementById("topbar").innerHTML=`<span class="chip">🧙 ${S.name} Lv${S.level} [${CLASSES[S.cls].name}]</span><span class="chip">❤️ ${Math.ceil(S.chp)}/${st.maxhp}</span><span class="chip">🔷 ${Math.ceil(S.cmp)}/${st.maxmp}</span><span class="chip">⚔️ ${st.atk} 🛡 ${st.def}</span><span class="chip">✨ ${S.exp}/${expNeed(S.level)}</span><span class="chip">💰 ${S.gold}</span><span class="chip">[${S.talent.t}] ${S.talent.n}</span>`;
+  const pn=document.getElementById("potionN");if(pn)pn.textContent=S.potions;
+  try{
+    document.getElementById("hudHp").textContent=`❤️ ${Math.max(0,Math.ceil(S.chp))}/${st.maxhp}`;
+    document.getElementById("hudMp").textContent=`🔷 ${Math.max(0,Math.ceil(S.cmp))}/${st.maxmp}`;
+    document.getElementById("hudKill").textContent=`☠️ ${S.kills||0}`;
+    document.getElementById("hudGold").textContent=`💰 ${S.gold||0}`;
+    document.getElementById("hudLevel").textContent=`Lv.${S.level||1}`;
+    const need=expNeed(S.level||1);const pct=need<=0?0:Math.floor(((S.exp||0)/need)*100);
+    document.getElementById("hudExp").textContent=`EXP: ${S.exp||0}/${need} (${pct}%)`;
+    document.getElementById("hudZone").textContent=(ZONES[curZone||0]&&ZONES[curZone||0].z||"").toUpperCase();
+    const mobCnt=(AG.mobs||[]).filter(m=>!m.boss&&m.hp>0).length;
+    document.getElementById("hudMob").textContent=`MOB: ${mobCnt}${AG.boss&&AG.boss.hp>0?'+BOSS':''}`;
+  }catch(e){}
+}
+function renderMaps(){const el=document.getElementById("mapList");if(!el)return;el.innerHTML="";ZONES.forEach((z,i)=>{const b=document.createElement("button");b.className="map-btn small"+(i===curZone?" sel":"");b.innerHTML=`<b>${z.z}</b><br><span style="font-size:11px">Lv${z.lv[0]}-${z.lv[1]} • Boss: ${z.boss[0]}</span>`;b.onclick=()=>{curZone=i;AG.boss=null;AG.mobs=[];AG.shots=[];AG.eshots=[];AG.aoes=[];save();renderMaps();log(`🗺 Tới <b>${z.z}</b> — quái Lv${z.lv[0]}-${z.lv[1]}.`,"sys")};el.appendChild(b)})}
+
+/* ============================================================
+   ACTION ENGINE — ĐÁNH THẬT (tham khảo võng du)
+   - Tân Thủ Thôn: gà/heo passive như Toàn Chức tân thủ
+   - Rừng Ma Lang/Hầm Ngục: sói dí theo bầy, nhện bắn độc (Vĩnh Hằng)
+   - Boss: vòng đỏ AoE + charge + gọi đệ (Hư Không trảm Thần)
+   ============================================================ */
+const MOB_EMOJI={"Gà Rừng":"🐔","Heo Rừng":"🐷","Khỉ Đá":"🐵","Sói Con":"🐺","Ma Lang":"🐺","Nhện Độc":"🕷️","Ong Chúa Con":"🐝","Gấu Xám":"🐻","Xác Sống":"🧟","Dơi Quỷ":"🦇","Vu Sư Học Việc":"🧙‍♂️","Kỵ Sĩ Không Đầu":"💀","Bọ Cạp Cát":"🦂","Xác Ướp":"🧻","Kền Kền Lửa":"🦅","Người Cát":"🗿","Quỷ Lửa":"🔥","Dung Nham Thú":"🦎","Hỏa Xà":"🐍","Viêm Ma":"😈","Ác Ma Sừng":"👹","Hư Không Thú":"👾","Đọa Thiên Sứ":"👼‍⬛","Hỗn Độn Thủ Vệ":"🛡️","Thần Thú Bạch Hổ":"🐯","Thần Thú Huyền Vũ":"🐢","Thiên Binh":"⚔️","Thần Tướng":"👲","Lang Vương":"🐺","Ma Lang Vương":"🐺","Vu Yêu":"🧙","Vua Bọ Cạp":"🦂","Viêm Ma Chúa":"😈","Hỗn Độn Ma Thần":"👹","Hắc Ám Thần":"🌑"};
+const MAP_BG=[["#1c2f1c","#0d1a0d","🌳"],["#14241a","#0a120c","🌲"],["#1a1626","#0d0a14","🕸️"],["#2e2410","#171204","🌵"],["#331310","#1a0a08","🌋"],["#1c0f2e","#0d0616","🌀"],["#101a3a","#060a1c","✨"]];
+const cv=document.getElementById("gameCanvas"),ctx=cv.getContext("2d");
+const AG={px:800,py:450,vx:0,vy:0,mobs:[],shots:[],eshots:[],aoes:[],dnums:[],pet:{x:0,y:0,cd:0},keys:{},joy:{x:0,y:0,on:false},atkCd:0,skillCd:[0,0,0],face:1,ifr:0,boss:null,spawnT:0,bossSpawned:false,mpReg:0};
+const WORLD={w:1600,h:900};
+function mobStat(zi,mi,isBoss){
+ if(isBoss){const b=ZONES[zi].boss;const mult=1+b[1]*0.012;return {name:b[0],lv:b[1],maxhp:Math.floor(b[2]*mult),atk:Math.floor(b[3]*mult),def:Math.floor(b[4]*mult),boss:true}}
+ const m=ZONES[zi].mobs[mi];return {name:m[0],lv:m[1],maxhp:m[2],atk:m[3],def:m[4],boss:false};
+}
+function spawnActionMob(forceBoss){
+ const zi=curZone;
+ if(forceBoss){
+  if(AG.boss||(bossCd[ZONES[zi].boss[0]]&&Date.now()<bossCd[ZONES[zi].boss[0]]))return;
+  const s=mobStat(zi,0,true);
+  AG.boss={...s,hp:s.maxhp,x:AG.px+300,y:AG.py,r:30,spd:70,atkT:0,patT:2,emo:MOB_EMOJI[s.name]||"👹"};
+  AG.mobs.push(AG.boss);
+  document.getElementById("bossHpWrap").style.display="block";
+  document.getElementById("bossHpName").textContent=`👹 ${s.name} Lv${s.lv}`;
+  log(`👹 <b class="boss">BOSS ${s.name} xuất hiện! Né vòng đỏ, đừng đứng yên!</b>`,"boss");
+  return;
+ }
+ if(AG.mobs.filter(m=>!m.boss).length>=6)return;
+ const mi=Math.floor(Math.random()*ZONES[zi].mobs.length);
+ const s=mobStat(zi,mi,false);
+ const a=Math.random()*Math.PI*2,r=320+Math.random()*200;
+ const ranged=/Nhện|Vu Sư|Ong|Kền Kền|Dơi|Hỏa Xà|Thiên Binh|Đọa/.test(s.name);
+ AG.mobs.push({...s,hp:s.maxhp,x:Math.min(WORLD.w-40,Math.max(40,AG.px+Math.cos(a)*r)),y:Math.min(WORLD.h-40,Math.max(40,AG.py+Math.sin(a)*r)),r:s.boss?30:16+Math.min(8,s.lv*0.08),spd:50+Math.min(90,s.lv*1.2),atkT:0,ranged,emo:MOB_EMOJI[s.name]||"👾",slow:0,stun:0});
+}
+function initAction(){
+ if(!S)return;
+ AG.px=800;AG.py=450;AG.mobs=[];AG.shots=[];AG.eshots=[];AG.aoes=[];AG.dnums=[];AG.boss=null;AG.bossSpawned=false;
+ const f=(S.talent&&S.talent.fx)||{};shieldHp=f.shield?Math.floor(calcStats().maxhp*f.shield):0;revives=(f.revive?1:0)+(f.reviveFull?1:0);
+ bindActionInput();requestAnimationFrame(loopAction);
+}
+function bindActionInput(){
+ if(bindActionInput.done)return;bindActionInput.done=true;
+ window.addEventListener("keydown",e=>{AG.keys[e.key.toLowerCase()]=true;if(e.key===" "){e.preventDefault();doAtk()}});
+ window.addEventListener("keyup",e=>{AG.keys[e.key.toLowerCase()]=false});
+ const joy=document.getElementById("joy"),knob=document.getElementById("joyKnob");
+ const setJ=(t)=>{const r=joy.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=t.clientX-cx,dy=t.clientY-cy;const d=Math.hypot(dx,dy),max=38;if(d>max){dx*=max/d;dy*=max/d}knob.style.left=(35+dx)+"px";knob.style.top=(35+dy)+"px";AG.joy.x=dx/max;AG.joy.y=dy/max;AG.joy.on=true};
+ joy.addEventListener("touchstart",e=>{e.preventDefault();setJ(e.touches[0])},{passive:false});
+ joy.addEventListener("touchmove",e=>{e.preventDefault();setJ(e.touches[0])},{passive:false});
+ joy.addEventListener("touchend",()=>{knob.style.left="35px";knob.style.top="35px";AG.joy.x=0;AG.joy.y=0;AG.joy.on=false});
+ document.getElementById("aAtk").onclick=()=>doAtk();
+ document.getElementById("aS1").onclick=()=>doSkill(0);
+ document.getElementById("aS2").onclick=()=>doSkill(1);
+ document.getElementById("aUlt").onclick=()=>doSkill(2);
+ document.getElementById("aPot").onclick=()=>drinkPot();
+}
+function nearestMob(maxD){
+ let best=null,bd=maxD||9999;
+ for(const m of AG.mobs){if(m.hp<=0)continue;const d=Math.hypot(m.x-AG.px,m.y-AG.py);if(d<bd){bd=d;best=m}}
+ return best;
+}
+function calcDmg(mult,target){
+ const st=calcStats(),f=(S.talent&&S.talent.fx)||{};
+ let dmg=st.atk*mult-target.def*0.35;
+ if(target.boss&&f.bossDmg)dmg*=1+f.bossDmg;if(!target.boss&&f.mobDmg)dmg*=1+f.mobDmg;
+ if(f.rage&&S.chp<st.maxhp*0.3)dmg*=1+f.rage;
+ let crit=Math.random()*100<st.crit;if(crit)dmg*=2;
+ dmg=Math.max(1,Math.floor(dmg));
+ if(f.double&&Math.random()<f.double)dmg=Math.floor(dmg*1.5);
+ if(f.lifesteal)S.chp=Math.min(st.maxhp,S.chp+dmg*f.lifesteal);
+ return {dmg,crit};
+}
+function doAtk(){
+ if(!S||AG.atkCd>0)return;AG.atkCd=0.38;
+ const ranged=(S.cls==="cung"||S.cls==="phap");
+ const t=nearestMob(ranged?520:110);
+ if(ranged){
+  const ang=t?Math.atan2(t.y-AG.py,t.x-AG.px):0;
+  const col=S.cls==="phap"?"#4da3ff":"#f5c542";
+  AG.shots.push({x:AG.px,y:AG.py,vx:Math.cos(ang)*560,vy:Math.sin(ang)*560,r:7,dmgM:1,col,life:1.2,pierce:S.cls==="cung"});
+ }else{
+  const t2=nearestMob(120);
+  AG.shots.push({melee:true,x:AG.px,y:AG.py,r:62,life:0.12,dmgM:1,col:"#fff",hitSet:new Set(),arc:AG.face});
+  if(t2){const {dmg,crit}=calcDmg(1,t2);hurtMob(t2,dmg,crit)}
+ }
+}
+function doSkill(i){
+ if(!S||AG.skillCd[i]>0)return;
+ const sk=CLASSES[S.cls].skills[i],st=calcStats();
+ const cost=Math.floor(sk.m*(1-(((S.talent&&S.talent.fx)||{}).manaSave||0)));
+ if(S.cmp<cost){log("Hết mana!","sys");return}
+ S.cmp-=cost;AG.skillCd[i]=sk.cd*0.55;
+ // skill thật theo nghề
+ if(S.cls==="muc"&&i===1){S.chp=Math.min(st.maxhp,S.chp+st.maxhp*0.4);addNum(AG.px,AG.py-30,"+HEAL","#3ddc84");burst(AG.px,AG.py,"#3ddc84",10);return}
+ if(S.cls==="khien"&&i===2){S.chp=Math.min(st.maxhp,S.chp+st.maxhp*0.25);burst(AG.px,AG.py,"#f5c542",16);aoeDmg(150,sk.mult);return}
+ if(S.cls==="phap"&&i===2){ // Thiên Thạch: vòng cảnh báo rồi nổ
+  const t=nearestMob(600)||{x:AG.px+200,y:AG.py};
+  AG.aoes.push({x:t.x,y:t.y,r:130,delay:0.8,t:0,dmgM:sk.mult,col:"#ff9a3d",from:"player"});
+  return;
+ }
+ if(S.cls==="cung"&&i===2){for(let k=0;k<8;k++){const a=Math.PI*2*k/8;AG.shots.push({x:AG.px,y:AG.py,vx:Math.cos(a)*480,vy:Math.sin(a)*480,r:6,dmgM:sk.mult/2.2,col:"#ff9a3d",life:0.9})}return}
+ if(S.cls==="kiem"&&i===1){AG.px+=AG.face*90;AG.shots.push({melee:true,x:AG.px,y:AG.py,r:80,life:0.15,dmgM:sk.mult,col:"#7de6ff",hitSet:new Set()});aoeDmg(90,sk.mult*0.6);return}
+ if(S.cls==="thich"&&i===1){const t=nearestMob(420);if(t){AG.px=t.x-40;AG.py=t.y;const {dmg,crit}=calcDmg(sk.mult,t);hurtMob(t,dmg,crit)}return}
+ // mặc định: bắn đạn skill
+ const t=nearestMob(560);const ang=t?Math.atan2(t.y-AG.py,t.x-AG.px):0;
+ const col=["#7de6ff","#c26bff","#f5c542"][i]||"#fff";
+ if(S.cls==="trieu"){burst(AG.px,AG.py,"#ff5ef1",12);aoeDmg(140,sk.mult);AG.pet.cd=0;return}
+ AG.shots.push({x:AG.px,y:AG.py,vx:Math.cos(ang)*620,vy:Math.sin(ang)*620,r:9,dmgM:sk.mult,col,life:1.1});
+ burst(AG.px,AG.py,col,6);
+}
+function aoeDmg(radius,mult){
+ for(const m of AG.mobs){if(m.hp<=0)continue;if(Math.hypot(m.x-AG.px,m.y-AG.py)<radius+m.r){const {dmg,crit}=calcDmg(mult,m);hurtMob(m,dmg,crit)}}
+}
+function burst(x,y,col,n){for(let i=0;i<(n||8);i++){const a=Math.random()*Math.PI*2;AG.dnums.push({x,y,vx:Math.cos(a)*60,vy:-60-Math.random()*60,t:0.5,txt:"✦",col})}}
+function addNum(x,y,txt,col){AG.dnums.push({x,y,vx:0,vy:-70,t:0.8,txt,col})}
+function hurtMob(m,dmg,crit){
+ if(m.hp<=0)return;m.hp-=dmg;
+ addNum(m.x,m.y-20,(crit?"BẠO ":"")+"-"+dmg,crit?"#f5c542":"#fff");
+ if(m.hp<=0)killMob(m);
+}
+function killMob(m){
+ const f=(S.talent&&S.talent.fx)||{};
+ let exp=Math.floor(m.maxhp*0.10+m.atk*2+m.lv*8)*(1+(f.expP||0));
+ let gold=Math.floor(m.lv*5+m.atk)*(1+(f.goldP||0));
+ S.exp+=exp;S.gold+=gold;S.kills++;
+ log(`${m.boss?"🏆 THỦ SÁT":"✅ Hạ"} ${m.name}! +${exp} exp +${gold} vàng.`,"loot");
+ if(m.boss){S.bossKills.push(m.name);bossCd[m.name]=Date.now()+60000;dropLoot(true);AG.boss=null;document.getElementById("bossHpWrap").style.display="none";checkQuestBoss();burst(m.x,m.y,"#ff5ef1",24)}
+ else{if(Math.random()<(0.22+(f.dropP||0)))dropLoot(false);if(f.steal&&Math.random()<f.steal){dropLoot(false);log("🖐 Thần Lai Chi Thủ: trộm thêm 1 món!","loot")}}
+ let need=expNeed(S.level);while(S.exp>=need){S.exp-=need;S.level++;const st=calcStats();S.chp=st.maxhp;S.cmp=st.maxmp;log(`🎉 <b class="sys">THĂNG CẤP ${S.level}! Full HP/MP.</b>`,"sys");burst(AG.px,AG.py,"#3ddc84",18);need=expNeed(S.level);checkQuestLevel()}
+ AG.mobs=AG.mobs.filter(x=>x.hp>0);
+ save();refreshTop();renderBoss();renderQuests();
+}
+function drinkPot(){if(!S||S.potions<=0){log("Hết bình máu!","sys");return}const st=calcStats(),f=(S.talent&&S.talent.fx)||{};S.potions--;S.chp=Math.min(st.maxhp,S.chp+st.maxhp*(0.5+(f.potionP||0)));addNum(AG.px,AG.py-30,"+MÁU","#3ddc84");refreshTop()}
+function hurtPlayer(dmg,src){
+ const st=calcStats(),f=(S.talent&&S.talent.fx)||{};
+ if(AG.ifr>0||Math.random()*100<st.dodge){if(Math.random()*100<st.dodge)addNum(AG.px,AG.py-26,"NÉ","#7de6ff");return}
+ if(f.reduce)dmg=Math.floor(dmg*(1-f.reduce));
+ if(shieldHp>0){const ab=Math.min(shieldHp,dmg);shieldHp-=ab;dmg-=ab}
+ if(f.reflect&&src)src.hp-=Math.floor(dmg*f.reflect);
+ S.chp-=dmg;AG.ifr=0.35;addNum(AG.px,AG.py-26,"-"+Math.max(1,Math.floor(dmg)),"#ff8a8a");
+ if(f.regen)S.chp=Math.min(st.maxhp,S.chp+st.maxhp*f.regen*0.2);
+ if(S.chp<=0){
+  if(f.reviveInf){S.chp=st.maxhp;log("🌈 Thần Sáng Thế: bất tử!","heal")}
+  else if(revives>0&&(f.revive||f.reviveFull)){revives--;S.chp=st.maxhp*(f.reviveFull?1:0.5);log("✨ Thiên phú cứu mạng!","heal")}
+  else{const nm=src?src.name:"quái";log(`💀 Bị ${nm} hạ! Mất 10% exp, hồi sinh giữa map.`,"dmg");if(!f.noExpLoss)S.exp=Math.floor(S.exp*0.9);S.chp=st.maxhp;S.cmp=st.maxmp;AG.px=800;AG.py=450;AG.eshots=[];AG.aoes=[]}
+ }
+ refreshTop();
+}
+let lastT=0;
+function loopAction(t){
+ if(!S||!document.getElementById("scr-game").classList.contains("active")){requestAnimationFrame(loopAction);return}
+ const dt=Math.min(0.033,(t-lastT)/1000||0.016);lastT=t;
+ updateAction(dt);drawAction();
+ requestAnimationFrame(loopAction);
+}
+function updateAction(dt){
+ const st=calcStats(),f=(S.talent&&S.talent.fx)||{};
+ // di chuyển
+ let mx=0,my=0;
+ if(AG.keys["w"]||AG.keys["arrowup"])my-=1;if(AG.keys["s"]||AG.keys["arrowdown"])my+=1;
+ if(AG.keys["a"]||AG.keys["arrowleft"])mx-=1;if(AG.keys["d"]||AG.keys["arrowright"])mx+=1;
+ mx+=AG.joy.x;my+=AG.joy.y;
+ const l=Math.hypot(mx,my);if(l>1){mx/=l;my/=l}
+ if(mx!==0)AG.face=mx>0?1:-1;
+ const spd=190+st.spd*4;
+ AG.px=Math.min(WORLD.w-24,Math.max(24,AG.px+mx*spd*dt));
+ AG.py=Math.min(WORLD.h-24,Math.max(24,AG.py+my*spd*dt));
+ AG.atkCd-=dt;AG.skillCd=AG.skillCd.map(c=>c-dt);AG.ifr-=dt;
+ S.cmp=Math.min(st.maxmp,S.cmp+(4+(f.mpRegen||0))*dt);
+ if(f.regen)S.chp=Math.min(st.maxhp,S.chp+st.maxhp*f.regen*dt);
+ // phím tắt
+ if(AG.keys["j"])doAtk();if(AG.keys["k"])doSkill(0);if(AG.keys["l"])doSkill(1);if(AG.keys["u"])doSkill(2);if(AG.keys["p"]){AG.keys["p"]=false;drinkPot()}
+ // spawn quái + boss định kỳ
+ AG.spawnT-=dt;
+ if(AG.spawnT<=0){AG.spawnT=1.1;spawnActionMob(false);
+  if(!AG.boss&&S.level>=ZONES[curZone].lv[0]-2&&Math.random()<0.06)spawnActionMob(true);
+ }
+ // pet triệu hoán sư đánh kèm
+ if(S.cls==="trieu"){AG.pet.cd-=dt;const t=nearestMob(420);if(t){AG.pet.x+=(t.x-AG.pet.x)*dt*5;AG.pet.y+=(t.y-AG.pet.y)*dt*5;if(AG.pet.cd<=0&&Math.hypot(t.x-AG.pet.x,t.y-AG.pet.y)<60){AG.pet.cd=0.8;const {dmg}=calcDmg(0.6,t);hurtMob(t,dmg,false)}}else{AG.pet.x+=(AG.px-AG.pet.x)*dt*4;AG.pet.y+=((AG.py+40)-AG.pet.y)*dt*4}}
+ else{AG.pet.x=AG.px;AG.pet.y=AG.py+34}
+ // đạn player
+ for(const s of AG.shots){
+  s.life-=dt;
+  if(s.melee){for(const m of AG.mobs){if(m.hp>0&&!s.hitSet.has(m)&&Math.hypot(m.x-s.x,m.y-s.y)<s.r+m.r){s.hitSet.add(m);const {dmg,crit}=calcDmg(s.dmgM||1,m);hurtMob(m,dmg,crit)}}continue}
+  s.x+=s.vx*dt;s.y+=s.vy*dt;
+  for(const m of AG.mobs){if(m.hp<=0)continue;if(Math.hypot(m.x-s.x,m.y-s.y)<m.r+s.r){const {dmg,crit}=calcDmg(s.dmgM||1,m);hurtMob(m,dmg,crit);addNum(m.x,m.y-34,"💥","#fff");s.life=0;if(!s.pierce)break}}
+ }
+ AG.shots=AG.shots.filter(s=>s.life>0);
+ // AI quái
+ for(const m of AG.mobs){
+  if(m.hp<=0)continue;
+  if(m.stun>0){m.stun-=dt;continue}
+  const d=Math.hypot(AG.px-m.x,AG.py-m.y);
+  const aggro=m.boss?900:(/Gà|Heo/.test(m.name)?160:420);
+  if(d<aggro){
+   const sp=m.spd*(m.slow>0?0.5:1);if(m.slow>0)m.slow-=dt;
+   const nx=(AG.px-m.x)/ (d||1),ny=(AG.py-m.y)/(d||1);
+   if(m.boss){
+    m.patT-=dt;m.atkT-=dt;
+    if(m.patT<=0){m.patT=3+Math.random()*2; // pattern boss: charge hoặc AoE hoặc gọi đệ
+     const roll=Math.random();
+     if(roll<0.4){AG.aoes.push({x:AG.px,y:AG.py,r:110,delay:0.9,t:0,dmg:m.atk*1.6,col:"#ff4d5e",from:"enemy"});log(`⚠️ ${m.name} gồng AoE! Chạy khỏi vòng đỏ!`,"boss")}
+     else if(roll<0.7){m.charge={vx:nx*420,vy:ny*420,t:0.7}}
+     else{for(let i=0;i<2;i++)spawnActionMob(false);log(`👹 ${m.name} gọi đệ!`,"boss")}
+    }
+    if(m.charge&&m.charge.t>0){m.charge.t-=dt;m.x+=m.charge.vx*dt;m.y+=m.charge.vy*dt}
+    else{m.x+=nx*sp*dt*0.7;m.y+=ny*sp*dt*0.7}
+    if(d<70&&m.atkT<=0){m.atkT=0.9;hurtPlayer(Math.max(1,m.atk-calcStats().def*0.5),m)}
+   }else if(m.ranged){
+    if(d>300){m.x+=nx*sp*dt;m.y+=ny*sp*dt}
+    else if(d<180){m.x-=nx*sp*dt;m.y-=ny*sp*dt}
+    m.atkT-=dt;if(m.atkT<=0&&d<420){m.atkT=1.6;AG.eshots.push({x:m.x,y:m.y,vx:nx*260,vy:ny*260,r:6,atk:m.atk,life:2})}
+   }else{
+    if(/Gà/.test(m.name)&&d<120){m.x-=nx*sp*dt;m.y-=ny*sp*dt} // gà chạy
+    else{m.x+=nx*sp*dt;m.y+=ny*sp*dt}
+    if(d<m.r+22){m.atkT-=dt;if(m.atkT<=0){m.atkT=1.0;hurtPlayer(Math.max(1,m.atk-calcStats().def*0.6),m)}}
+   }
+  }
+ }
+ // đạn địch
+ for(const s of AG.eshots){s.life-=dt;s.x+=s.vx*dt;s.y+=s.vy*dt;if(Math.hypot(s.x-AG.px,s.y-AG.py)<20){hurtPlayer(Math.max(1,s.atk-calcStats().def*0.4),null);s.life=0}}
+ AG.eshots=AG.eshots.filter(s=>s.life>0);
+ // vòng AoE
+ for(const a of AG.aoes){a.t+=dt;if(a.t>=a.delay){ // nổ
+  if(a.from==="enemy"){if(Math.hypot(AG.px-a.x,AG.py-a.y)<a.r)hurtPlayer(a.dmg,null)}
+  else{for(const m of AG.mobs){if(m.hp>0&&Math.hypot(m.x-a.x,m.y-a.y)<a.r+m.r){const {dmg,crit}=calcDmg(a.dmgM,m);hurtMob(m,dmg,crit)}}}
+  burst(a.x,a.y,a.col||"#ff9a3d",10);a.done=true;
+ }}
+ AG.aoes=AG.aoes.filter(a=>!a.done);
+ // dmg numbers
+ for(const n of AG.dnums){n.t-=dt;n.x+=n.vx*dt;n.y+=n.vy*dt}
+ AG.dnums=AG.dnums.filter(n=>n.t>0);
+ // HUD
+ document.getElementById("hudHp").textContent=`❤️ ${Math.ceil(S.chp)}/${st.maxhp}`;
+ document.getElementById("hudMp").textContent=`🔷 ${Math.ceil(S.cmp)}/${st.maxmp}`;
+ document.getElementById("hudZone").textContent=`🗺 ${ZONES[curZone].z} Lv${S.level}`;
+ document.getElementById("hudKill").textContent=`☠️ ${S.kills}`;
+ const bw=document.querySelector("#bossHpBar>div");if(AG.boss&&bw)bw.style.width=(AG.boss.hp/AG.boss.maxhp*100)+"%";
+ const b1=document.getElementById("aS1"),b2=document.getElementById("aS2"),bu=document.getElementById("aUlt");
+ if(b1){b1.textContent=AG.skillCd[0]>0?Math.ceil(AG.skillCd[0]):"1";b1.classList.toggle("cd",AG.skillCd[0]>0)}
+ if(b2){b2.textContent=AG.skillCd[1]>0?Math.ceil(AG.skillCd[1]):"2";b2.classList.toggle("cd",AG.skillCd[1]>0)}
+ if(bu){bu.textContent=AG.skillCd[2]>0?Math.ceil(AG.skillCd[2]):"🔥";bu.classList.toggle("cd",AG.skillCd[2]>0)}
+ // hồi máu ngoài combat nhẹ
+}
+function drawAction(){
+ const [c1,c2,ico]=MAP_BG[curZone];
+ const g=ctx.createLinearGradient(0,0,0,540);g.addColorStop(0,c1);g.addColorStop(1,c2);ctx.fillStyle=g;ctx.fillRect(0,0,960,540);
+ // camera
+ const camX=Math.min(WORLD.w-960,Math.max(0,AG.px-480)),camY=Math.min(WORLD.h-540,Math.max(0,AG.py-270));
+ const sx=(x)=>x-camX,sy=(y)=>y-camY;
+ // decor grid + icon map
+ ctx.font="22px serif";
+ for(let i=0;i<24;i++){const dx=(i*211)%WORLD.w,dy=(i*137)%WORLD.h;if(dx>camX-40&&dx<camX+1000&&dy>camY-40&&dy<camY+580)ctx.fillText(ico,sx(dx),sy(dy))}
+ // Tân Thủ Thôn vẽ nhà
+ if(curZone===0){ctx.fillStyle="#5a3a1a";ctx.fillRect(sx(700),sy(200),120,80);ctx.fillStyle="#a31226";ctx.beginPath();ctx.moveTo(sx(690),sy(200));ctx.lineTo(sx(760),sy(150));ctx.lineTo(sx(830),sy(200));ctx.fill();ctx.fillStyle="#fff";ctx.font="13px sans-serif";ctx.fillText("TÂN THỦ THÔN",sx(700),sy(170))}
+ // AoE warning
+ for(const a of AG.aoes){ctx.beginPath();ctx.arc(sx(a.x),sy(a.y),a.r,0,7);ctx.fillStyle=a.from==="enemy"?"rgba(255,40,60,.25)":"rgba(255,200,60,.25)";ctx.fill();ctx.strokeStyle=a.from==="enemy"?"#ff4d5e":"#f5c542";ctx.lineWidth=2;ctx.stroke()}
+ // quái
+ for(const m of AG.mobs){if(m.hp<=0)continue;
+  ctx.beginPath();ctx.arc(sx(m.x),sy(m.y),m.r,0,7);ctx.fillStyle=m.boss?"rgba(255,94,241,.25)":"rgba(0,0,0,.35)";ctx.fill();
+  ctx.font=(m.boss?44:30)+"px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(m.emo,sx(m.x),sy(m.y));
+  ctx.fillStyle="#000";ctx.fillRect(sx(m.x)-24,sy(m.y)-m.r-12,48,6);
+  ctx.fillStyle=m.boss?"#ff5ef1":"#ff4d5e";ctx.fillRect(sx(m.x)-24,sy(m.y)-m.r-12,48*Math.max(0,m.hp/m.maxhp),6);
+  ctx.fillStyle="#fff";ctx.font="10px sans-serif";ctx.fillText("Lv"+m.lv,sx(m.x),sy(m.y)-m.r-18);
+ }
+ // pet
+ if(S&&S.cls==="trieu"){ctx.font="24px serif";ctx.textAlign="center";ctx.fillText("🐺",sx(AG.pet.x),sy(AG.pet.y))}
+ // player
+ const st=calcStats();
+ ctx.beginPath();ctx.arc(sx(AG.px),sy(AG.py),20,0,7);ctx.fillStyle=AG.ifr>0?"rgba(255,255,255,.4)":"rgba(77,163,255,.3)";ctx.fill();
+ const pemo={kiem:"🗡️",khien:"🛡️",phap:"🔮",thich:"🗡️",cung:"🏹",muc:"�✝️",trieu:"🔯"}[S?S.cls:"kiem"]||"🧙";
+ ctx.font="34px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(pemo,sx(AG.px),sy(AG.py));
+ if(shieldHp>0){ctx.beginPath();ctx.arc(sx(AG.px),sy(AG.py),26,0,7);ctx.strokeStyle="#7de6ff";ctx.lineWidth=2;ctx.stroke()}
+ // đạn
+ for(const s of AG.shots){if(s.melee){ctx.beginPath();ctx.arc(sx(s.x),sy(s.y),s.r,0,7);ctx.strokeStyle=s.col;ctx.lineWidth=3;ctx.stroke();continue}ctx.beginPath();ctx.arc(sx(s.x),sy(s.y),s.r,0,7);ctx.fillStyle=s.col;ctx.shadowColor=s.col;ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0}
+ ctx.fillStyle="#ff8a8a";for(const s of AG.eshots){ctx.beginPath();ctx.arc(sx(s.x),sy(s.y),s.r,0,7);ctx.fill()}
+ // dmg numbers
+ ctx.font="bold 14px sans-serif";for(const n of AG.dnums){ctx.fillStyle=n.col||"#fff";ctx.fillText(n.txt,sx(n.x),sy(n.y))}
+ // thanh máu player trên đầu
+ ctx.fillStyle="#000";ctx.fillRect(sx(AG.px)-26,sy(AG.py)-36,52,6);
+ ctx.fillStyle="#3ddc84";ctx.fillRect(sx(AG.px)-26,sy(AG.py)-36,52*Math.max(0,S?S.chp/st.maxhp:1),6);
+}
+// giữ hàm cũ cho tab Boss/Quest khỏi lỗi
+function renderSkillsBattle(){const sl=document.getElementById("skillList");if(!sl||!S)return;const sk=CLASSES[S.cls].skills;sl.innerHTML="";sk.forEach((s,i)=>{sl.innerHTML+=`<div class="mon">🔥 <b>${s.n}</b> — mobile bấm nút ${i+1}, PC phím ${["K","L","U"][i]}</div>`})}
+function stopAuto(){}
+function dropLoot(isBoss){const f=(S.talent&&S.talent.fx)||{};let g=Math.random();let gi=0;if(isBoss)g-=0.35;g+=(f.dropP||0)*0.3;
+ if(g>0.97)gi=6;else if(g>0.90)gi=5;else if(g>0.78)gi=4;else if(g>0.60)gi=3;else if(g>0.38)gi=2;else if(g>0.15)gi=1;
+ if(f.evo)gi=Math.min(6,gi+1);if(f.evo2)gi=Math.min(6,gi+2);
+ const slot=SLOTS[Math.floor(Math.random()*SLOTS.length)];const lv=S.level;
+ const it={slot,g:gi,name:`${GRADES[gi][0]} ${slot} Lv${lv}`,atk:Math.floor((lv*2+5)*(1+gi*0.7)*(slot==="Vũ khí"?1.6:slot==="Nhẫn"||slot==="Dây chuyền"?0.6:0.3)),def:Math.floor((lv*1.5+3)*(1+gi*0.7)*(slot==="Vũ khí"?0.1:1)),hp:Math.floor(lv*4*(1+gi*0.5)*(slot==="Giáp"?1.5:0.4)),plus:0};
+ S.bag.push(it);log(`🎁 Nhặt: <span class="${GRADES[gi][1]}">${it.name}</span>.`,"loot");renderBag()}
+function renderBag(){if(!S)return;const w=document.getElementById("worn");w.innerHTML="";const keys={wp:"Vũ khí",ar:"Giáp",hat:"Nón",sh:"Giày",ri:"Nhẫn",am:"Dây chuyền"};
+ for(const k in keys){const it=S.worn[k];w.innerHTML+=`<div class="mon">${keys[k]}: ${it?`<span class="${GRADES[it.g][1]}">${it.name}+${it.plus}</span> <button class="small" data-un="${k}">Gỡ</button>`:"(trống)"}</div>`;}
+ w.querySelectorAll("button").forEach(b=>b.onclick=()=>{S.bag.push(S.worn[b.dataset.un]);S.worn[b.dataset.un]=null;save();refreshTop();renderBag()});
+ const b=document.getElementById("bagList");b.innerHTML=S.bag.length?"":'"Trống"';S.bag.forEach((it,i)=>{const d=document.createElement("div");d.className="mon";d.innerHTML=`<span class="${GRADES[it.g][1]}">${it.name}</span> C${it.atk} T${it.def} <button class="small" data-w="${i}">Mặc</button> <button class="small" data-s="${i}">Bán +${Math.floor((it.g+1)*S.level*3)}</button>`;b.appendChild(d)});
+ b.querySelectorAll("[data-w]").forEach(x=>x.onclick=()=>{const it=S.bag.splice(+x.dataset.w,1)[0];const key={"Vũ khí":"wp","Giáp":"ar","Nón":"hat","Giày":"sh","Nhẫn":"ri","Dây chuyền":"am"}[it.slot];if(S.worn[key])S.bag.push(S.worn[key]);S.worn[key]=it;save();refreshTop();renderBag()});
+ b.querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{const it=S.bag.splice(+x.dataset.s,1)[0];const price=Math.floor((it.g+1)*S.level*3);S.gold+=price;log(`💰 Bán ${it.name} +${price} vàng.`,"loot");save();refreshTop();renderBag()})}
+function renderChar(){if(!S)return;const st=calcStats();document.getElementById("charInfo").innerHTML=`<div style="display:flex;gap:10px;align-items:center"><div style="width:84px;height:96px;background:#0d1226;border-radius:10px;display:flex;align-items:center;justify-content:center">${ART[S.cls]}</div><table><tr><th>Tên</th><td>${S.name}</td></tr><tr><th>Nghề</th><td>${CLASSES[S.cls].name}</td></tr><tr><th>Cấp</th><td>${S.level} (${S.exp}/${expNeed(S.level)})</td></tr><tr><th>HP/MP</th><td>${S.chp}/${st.maxhp} • ${S.cmp}/${st.maxmp}</td></tr><tr><th>Công/Thủ/Tốc</th><td>${st.atk}/${st.def}/${st.spd}</td></tr><tr><th>Bạo/Né</th><td>${st.crit}%/${st.dodge}%</td></tr></table></div>`;
+ document.getElementById("talentInfo").innerHTML=`<div class="talent t${S.talent.t}"><span class="badge">[${S.talent.t}]</span><b>${S.talent.n}</b><br>${S.talent.d}<br>💡 ${S.talent.build||""}<br><i>🔒 Đã khóa vĩnh viễn.</i></div>`;renderSkillsBattle()}
+function renderBoss(){const el=document.getElementById("bossList");if(!el||!S)return;el.innerHTML="";ZONES.forEach((z,i)=>{const left=bossCd[z.boss[0]]&&Date.now()<bossCd[z.boss[0]];el.innerHTML+=`<div class="mon">👹 <b class="boss-tag">${z.boss[0]}</b> Lv${z.boss[1]} (${z.z}) ${S.bossKills.includes(z.boss[0])?"✅":""}<br><button class="small" data-b="${i}" ${left?"disabled":""}>${left?"Hồi sinh...":"Khiêu chiến"}</button></div>`});
+ el.querySelectorAll("button").forEach(b=>b.onclick=()=>{curZone=+b.dataset.b;renderMaps();switchTab("train");if(typeof spawnActionMob==="function")spawnActionMob(true)})}
+function renderQuests(){const el=document.getElementById("questList");if(!el||!S)return;el.innerHTML="";QUESTS.forEach((q,i)=>{el.innerHTML+=`<div class="mon">📜 <b>${q.n}</b> — ${q.rw.exp} exp + ${q.rw.gold} vàng ${q.done?"✅":""}<br><button class="small" data-q="${i}" ${q.done?"disabled":""}>Nhận</button></div>`});
+ el.querySelectorAll("button").forEach(b=>b.onclick=()=>claimQuest(+b.dataset.q))}
+function questOk(q){if(q.done)return false;if(q.need.kills&&S.kills<q.need.kills)return false;if(q.need.level&&S.level<q.need.level)return false;if(q.need.boss&&!S.bossKills.includes(q.need.boss))return false;return true}
+function claimQuest(i){const q=QUESTS[i];if(!questOk(q)){log("❌ Chưa đủ điều kiện.","sys");return}q.done=true;S.exp+=q.rw.exp;S.gold+=q.rw.gold;log(`🎉 Hoàn thành: ${q.n}!`,"loot");let n=expNeed(S.level);while(S.exp>=n){S.exp-=n;S.level++;n=expNeed(S.level);log(`🎉 THĂNG CẤP ${S.level}!`,"sys")}save();refreshTop();renderQuests()}
+function renderShop(){const el=document.getElementById("shopList");if(!el||!S)return;el.innerHTML=`<div class="shop-item">🧪 Bình máu — 30 vàng <button class="small" id="buyP">Mua</button></div><div class="shop-item">🎲 Rương Lv${S.level} — 100 vàng <button class="small" id="buyC">Mở</button></div>`;
+ document.getElementById("buyP").onclick=()=>{if(S.gold<30){log("Không đủ vàng!","sys");return}S.gold-=30;S.potions++;save();refreshTop()};
+ document.getElementById("buyC").onclick=()=>{if(S.gold<100){log("Không đủ vàng!","sys");return}S.gold-=100;const gi=1+Math.floor(Math.random()*5);const slot=SLOTS[Math.floor(Math.random()*6)];const lv=S.level;const it={slot,g:gi,name:`${GRADES[gi][0]} ${slot} Lv${lv}`,atk:Math.floor((lv*2+5)*(1+gi*0.7)),def:Math.floor((lv*1.5+3)*(1+gi*0.7)),hp:Math.floor(lv*4*(1+gi*0.5)),plus:0};S.bag.push(it);log(`🎁 Mở rương: <span class="${GRADES[gi][1]}">${it.name}</span>.`,"loot");save();refreshTop();renderBag()};
+ const f=document.getElementById("forgeList");f.innerHTML="";const keys={wp:"Vũ khí",ar:"Giáp",hat:"Nón",sh:"Giày",ri:"Nhẫn",am:"Dây chuyền"};
+ for(const k in keys){const it=S.worn[k];if(!it)continue;const cost=(it.plus+1)*50+S.level*5;f.innerHTML+=`<div class="shop-item">⚒ ${it.name}+${it.plus} → +${it.plus+1} (${cost} vàng) <button class="small" data-f="${k}">Rèn (${Math.max(20,90-it.plus*5)}%)</button></div>`}
+ f.querySelectorAll("button").forEach(b=>b.onclick=()=>{const k=b.dataset.f;const it=S.worn[k];const cost=(it.plus+1)*50+S.level*5;if(S.gold<cost){log("Không đủ vàng!","sys");return}S.gold-=cost;const rate=Math.max(20,90-it.plus*5);if(Math.random()*100<rate){it.plus++;it.atk=Math.floor(it.atk*1.12);it.def=Math.floor(it.def*1.12);save();refreshTop();renderShop()}})}
+function renderHelp(){document.getElementById("helpBox").innerHTML=`<b>7 nghề:</b> Kiếm/Khiên/Pháp/Thích/Cung/Mục/Triệu Hồi.<br><b>40 thiên phú F→R:</b> bấm 📖 Pool để xem build.<br><b>7 map:</b> ${ZONES.map(z=>z.z).join(" → ")}.`}
+document.getElementById("btnWipe").onclick=()=>{if(confirm("Xóa acc chơi lại?")){localStorage.removeItem("votiem_offline_v1");location.reload()}};
+function switchTab(t){document.querySelectorAll(".tabs button").forEach(b=>b.style.border=b.dataset.tab===t?"2px solid var(--gold)":"");["train","boss","char","bag","quest","shop","help"].forEach(x=>document.getElementById("tab-"+x).style.display=x===t?"block":"none");if(t==="char")renderChar();if(t==="bag")renderBag();if(t==="boss")renderBoss();if(t==="quest")renderQuests();if(t==="shop")renderShop()}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+/* init */
+renderClasses();renderStage();renderRateMini();
+if(load()&&S&&S.talent){drawn=S.talent;enterGame()}else{setInterval(save,10000)}
+</script>
+</body>
+</html>
